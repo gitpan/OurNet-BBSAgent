@@ -1,4 +1,78 @@
 ____________________________________________________________________________
+[  1219] By: autrijus@autrimobl                    on 2001/06/19 03:57:25
+	Log: * ebx -h now works under win32
+	     * updated makeebx
+	     * the new bbsagent behaviour owrks under perlapp now
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1216] By: autrijus@autribsd                     on 2001/06/19 01:49:59
+	Log: * documentation cleanup
+	     * Client now uses show() to display debug messages
+	     * 5.6 scripts now uses 'use warnings' instead of -w
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1214] By: autrijus@autrimobl                    on 2001/06/19 00:46:41
+	Log: * fixed Net::Telnet 3.12 warnings
+	     * Sync's output now autoflushes
+	     * getpwent() not implemented in Win32; fixed
+	     * relaxed dependencies in ebx's Makefile
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1178] By: clkao@claptop                         on 2001/06/16 16:07:39
+	Log: clone ptt.bbs instead of include it.
+       Path: BBSAgent
+	   ! ptt2.bbs
+____________________________________________________________________________
+[  1176] By: autrijus@autribsd                     on 2001/06/16 08:52:01
+	Log: * obsoleted directive.
+       Path: BBSAgent
+	   ! maple3/session.inc
+____________________________________________________________________________
+[  1163] By: autrijus@autribsd                     on 2001/06/16 00:45:30
+	Log: * integrate kcwu's templates.
+	     * revert postsign back.
+       Path: BBSAgent
+	   ! cvic.bbs cynix.bbs fpg.bbs kkcity.bbs miou.bbs neto.bbs
+	   ! ofo.bbs summer.bbs
+       Path: .
+	   ! Changes
+____________________________________________________________________________
+[  1162] By: autrijus@autribsd                     on 2001/06/16 00:44:44
+	Log: * split *.board into */base.inc, board.inc, session.inc and
+	     user.inc.
+	     * extra dubbging message for out-of-procedure directives.
+       Path: BBSAgent
+	   + firebird2/base.inc firebird2/board.inc firebird3/base.inc
+	   + firebird3/board.inc maple2/base.inc maple2/board.inc
+	   + maple2/session.inc maple2/user.inc maple3/base.inc
+	   + maple3/board.inc maple3/session.inc maple3/user.inc
+	   - firebird2.board firebird3.board maple2.board maple3.board
+       Path: .
+	   ! BBSAgent.pm MANIFEST
+____________________________________________________________________________
+[  1161] By: autrijus@autribsd                     on 2001/06/16 00:22:04
+	Log: * testing baseless integration
+       Path: BBSAgent
+	   ! cynix.bbs
+____________________________________________________________________________
+[  1138] By: autrijus@autribsd                     on 2001/06/14 18:44:35
+	Log: * RCS, credit, and license hunt finally completed.
+       Path: .
+	   ! BBSAgent.pm README
+____________________________________________________________________________
+[  1122] By: autrijus@autribsd                     on 2001/06/13 11:46:22
+	Log: * leading up for next release.
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1118] By: autrijus@autribsd                     on 2001/06/13 11:21:44
+	Log: * this be OurNet-BBSAgent 1.54.
+       Path: .
+	   ! Changes
+____________________________________________________________________________
 [  1111] By: autrijus@autribsd                     on 2001/06/13 06:59:07
 	Log: * oops. should clean header after all.
        Path: BBSAgent
@@ -84,11 +158,11 @@ ____________________________________________________________________________
 ____________________________________________________________________________
 [   912] By: autrijus@autribsd                     on 2001/06/06 01:09:17
 	Log: * BBSAgent 1.52
-       Path: .
-	   + test.pl
-	   ! BBSAgent.pm MANIFEST
        Path: BBSAgent
 	   + bahamut.bbs cynix.bbs wretch.bbs zoo.bbs
+       Path: .
+	   ! BBSAgent.pm MANIFEST
+	   + test.pl
 ____________________________________________________________________________
 [   911] By: autrijus@autricvic                    on 2001/06/06 00:46:06
 	Log: * patch toward 1.51
@@ -108,10 +182,10 @@ ____________________________________________________________________________
 ____________________________________________________________________________
 [   893] By: autrijus@autribsd                     on 2001/06/02 04:58:28
 	Log: * OurNet::BBSAgent branch.
-       Path: .
-	   + BBSAgent.pm Changes MANIFEST Makefile.PL README TODO
        Path: BBSAgent
 	   cvic.bbs elixus.bbs firebird2.board firebird3.board fpg.bbs
 	   hsnu.bbs kimo.bbs kkcity.bbs maple2.board maple3.board miou.bbs
 	   neto.bbs ofo.bbs openbazaar.bbs ptt.bbs ptt2.bbs summer.bbs
 	   terry.bbs tfg.bbs tkucs.bbs twserv.bbs
+       Path: .
+	   + BBSAgent.pm Changes MANIFEST Makefile.PL README TODO

@@ -8,16 +8,12 @@ load maple2.board
 setv cursor	★
 setv morehead	m/\e\[([\d;]+)m\x20\x20瀏覽\x20P./
 setv moretail	\e[30m結束\x20\x20\e[0m
+setv pager	通訊器
 
 =login
 wait 名稱
 send \n$[username]\n$[password]\nn\n\n\nqq\nqqq
 goto main
-
-=main
-send eeeeeeee
-wait 主功能表
-till 通訊器
 
 # 注意: ofo 有時 post 到一半會跑 message box 出來!
 
@@ -27,4 +23,59 @@ send \x24E\x19\x19\x19\x19
 send \x14\x19\x19\x19\x19\x19
 send \x18s\n\x20
 wait 文章選讀
+exit
+
+=message
+wait \e[1;37;46m\x20
+till \x20\e[4;33;40m\x20
+till \x20\e[0m
+exit
+
+=talk
+call main
+send t\n
+wait 星光咖啡
+till 通訊器
+
+=talk_users
+call talk
+send u\n
+wait 休閒聊天
+  or 好友列表
+till (TAB/f)
+
+=query_user
+call talk_users
+send /
+wait 姓名：
+send $[id]\n
+send q
+wait 星艦識別ID》
+till 繼續
+send \x20
+exit 
+
+=main
+send \e[D\e[D\e[D\e[D\e[D\e[D
+wait 主功能表
+till 通訊器
+
+=talk_users_refresh
+send \x15
+wait 休閒聊天
+  or 好友列表
+till (TAB/f)
+exit
+
+=message_send
+call talk_users
+send /
+wait 姓名：
+send $[receiver]\n
+wait $[receiver]
+send w
+wait Call-In：
+send $[message]\n
+wait [Y]
+send \n
 exit

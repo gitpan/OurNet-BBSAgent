@@ -1,7 +1,10 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent.pm $ $Author: autrijus $
+# $Revision: #16 $ $Change: 1250 $ $DateTime: 2001/06/20 19:31:43 $
+
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.54';
+$OurNet::BBSAgent::VERSION = '1.55';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -18,21 +21,24 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
 
     use OurNet::BBSAgent;
 
-    my $cvic = new OurNet::BBSAgent('elixus.bbs', undef, 'elixus.log');
+    my $bbs = new OurNet::BBSAgent('elixus.bbs', undef, 'elixus.log');
 
-    # $cvic->{debug} = 1; # Turn on if you want debugging
+    $bbs->{debug} = 0; # set to 1 if you want debugging
+    $bbs->login($ARGV[0] || 'guest', $ARGV[1]);
 
-    $cvic->login($ARGV[0] || 'guest', $ARGV[1]);
-    callback($cvic->balloon()) while 1; # procedural handling
+    callback($bbs->message) while 1; # procedural interface
 
-    $cvic->Hook('balloon', \&callback); # callback-based handling
-    $cvic->Loop;
+    $bbs->Hook('message', \&callback); # callback-based interface
+    $bbs->Loop;
 
     sub callback {
         ($caller, $message) = @_;
         print "Received: $message\n";
-        exit if $message eq '!quit';
-        $cvic->balloon_reply("$caller, I've got your message!");
+        if ($message eq '!quit') {
+	    $bbs->logoff;
+	    exit;
+	}
+        $bbs->message_reply("$caller, I've got your message!");
     }
 
 =head1 DESCRIPTION
@@ -61,17 +67,20 @@ a site description file:
     send \n\n\n\n
 
     =main
-    send qqqqqqqq
+    send qqqqqqee
     wait 主功能表
     till 呼叫器
 
-    =balloon
+    =logoff
+    send eeeeeeeeeeee\nn\ny\ny\n\n\n
+
+    =message
     wait \e[1;33;46m★
     till \x20\e[37;45m\x20
     till \x20\e[m
     exit
 
-    =balloon_reply
+    =message_reply
     send \x12
     wait 回應
     send $[message]\n
@@ -92,6 +101,11 @@ program. Each procedure is made by any number of following directives:
 
 This directive must be used before any procedures. It loads another
 BBS definition file under the same directory (or current directory).
+If the FILENAME contains extentions other than C<.bbs> (e.g. C<.board>,
+C<.session>), BBSAgent will try to locate additional modules by 
+expanding C<.> into C</>, and look for the required module with an
+C<.inc> extention. For example, C<load maple3.board> will look for
+<maple3/board.inc> in the same directory.  
 
 =item wait STRING
 =item till STRING
@@ -102,11 +116,11 @@ out after C<$self->{timeout}> seconds. Any trailing C<or> directives
 specifies an alternative string to match.
 
 If STRING is of format C<m/.*/[imsx]*>, it will be treated as a regular
-expression. This is an B<experimental> feature and the interface is
-subject to change.
+expression. Any capturing parentheses will be silently ignored.
 
-Additionally, C<till> puts anything between the last C<wait> or C<till>
-and STRING into the return list.
+The C<till> directive is functionally equivalent to C<wait>, except that
+it will puts anything between the last C<wait> or C<till> and STRING 
+into the return list.
 
 =item send STRING
 
@@ -117,13 +131,13 @@ Sends STRING to remote host.
 =item else
 =item endo
 
-The usual flow control directives. Nested C<doif...endo>s is supported.
+The usual flow control directives. Nested C<doif...endo>s are supported.
 
 =item goto PROCEDURE
 =item call PROCEDURE
 
-Executes another procedure in the site description file. C<goto> never
-returns, while C<call> always will. Also, a C<call> will not occur if
+Executes another procedure in the site description file. A C<goto> never
+returns, while a C<call> always will. Also, a C<call> will not occur if
 the destination was the last executed procedure that does not end with
 C<exit>.
 
@@ -144,9 +158,9 @@ Sleep that much seconds.
 
 =head2 Variable Handling
 
-Whenever a variable in the form of $[name] is encountered as a part of
-a directive, it is looked up in the global 'setv' hash C<$self->{var}>
-first, then at the procedure-scoped variable hash, and is shift()'ed
+Whenever a variable in the form of C<$[name]> is encountered as part of
+a directive, it will be looked up in the global 'setv' hash C<$self->{var}>
+first, then at the procedure-scoped variable hash, then finally C<shift()>ed
 from the argument list if none are found.
 
 For example:
@@ -181,9 +195,9 @@ they expected are received, the responsible procedure is immediately
 called. You can also supply a call-back function to handle its results.
 
 For example, the code in L<SYNOPSIS> above 'hooks' a callback function
-to procedure 'balloon', then enters a event loop by calling C<Loop>,
+to procedure 'message', then enters a event loop by calling C<Loop>,
 which never terminates except when the agent receives '!quit' via the
-balloon procedure.
+message procedure.
 
 The internal hook table could be accessed by $obj->{hook}. It is
 implemented via a hash of hash of hash of lists -- Kids, don't try
@@ -207,7 +221,7 @@ sub new {
 	: do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
 
     $self->{bbsfile} = shift
-	or die("You need to specify the bbs definition file.");
+	or die('You need to specify the bbs definition file');
 
     $self->{timeout} = shift;
 
@@ -229,13 +243,19 @@ sub new {
 
     close *_FILE;
 
+    local $^W; # work around 'numeric' Net::Telnet 3.12 bug
+
     $self->loadfile($self->{bbsfile});
 
     $self->{netobj} = Net::Telnet->new(
     	Timeout => $self->{timeout},
     );
-    $self->{netobj}->open('Host' => $self->{bbsaddr},
-                          'Port' => $self->{bbsport});
+
+    $self->{netobj}->open(
+	Host => $self->{bbsaddr},
+	Port => $self->{bbsport},
+    );
+
     $self->{netobj}->output_record_separator('');
     $self->{netobj}->input_log($_[0]) if $_[0];
     $self->{state} = '';
@@ -246,15 +266,17 @@ sub new {
 sub _plain {
   my $str = $_[0];
 
-  $str=~ s/([\x00-\x20])/sprintf("\\x%02x", ord($1))/eg;
+  $str =~ s/([\x00-\x20])/sprintf('\x%02x', ord($1))/eg;
 
   return $str;
 }
 
 sub loadfile {
-    my ($self, $bbsfile) = @_;
+    my ($self, $bbsfile, $path) = @_;
 
-    return if $self->{loadstack}{$bbsfile}++;
+    return if $self->{loadstack}{$bbsfile}++; # recursion prevention
+
+    $path ||= substr($bbsfile, 0, rindex($bbsfile, '/') + 1);
 
     open(local *_FILE, $bbsfile)
 	or die "cannot find file: $bbsfile";
@@ -295,15 +317,22 @@ sub loadfile {
                     $self->{var}{$var} = $val;
                 }
                 elsif ($1 eq 'load') { # ...but 'load' is another exception.
-                    $self->loadfile(
-                        -e $2 ? $2 :
-                        substr($bbsfile, 0, rindex($bbsfile, '/') + 1) . $2
-                    );
+		    my $file = $2;
+
+		    if ($file !~ /\.bbs$/) {
+			$file =~ tr|.|/|;
+			$file = "$path$file.inc" unless -e $file;
+			$file =~ s|^(\w+)/\1/|$1/|;
+		    }
+
+		    die "cannot read file: $file" unless -e $file;
+
+                    $self->loadfile($file, $path);
 
                     $self->{state} = '';
                 }
                 else {
-                    die('Not in a procedure');
+                    die("Not in a procedure: $line");
                 }
             }
             push @{$self->{proc}{$self->{state} || ''}}, $1, $2;
@@ -329,8 +358,7 @@ sub loadfile {
 # Unhooks the procedure from event table.
 # ---------------------------------------
 sub Unhook {
-    my $self = shift;
-    my $sub  = shift;
+    my ($self, $sub) = @_;
 
     if (exists $self->{proc}{$sub}) {
         my ($state, %var);
@@ -353,8 +381,7 @@ sub Unhook {
 # functions and procedure parameters.
 # -----------------------------------------------------------
 sub Hook {
-    my $self = shift;
-    my ($sub, $callback) = splice(@_, 0, 2);
+    my ($self, $sub, $callback) = splice(@_, 0, 3);
 
     if (exists $self->{proc}{$sub}) {
         my ($state, $wait, %var) = '';
@@ -377,11 +404,11 @@ sub Hook {
 # Loops for $timeout seconds, or indefinitely if not specified.
 # -------------------------------------------------------------
 sub Loop {
-    my $self = shift;
+    my ($self, $timeout) = @_;
 
     do {
-        $self->Expect(undef, defined $_[0] ? $_[0] : -1);
-    } until (defined $_[0]);
+        $self->Expect(undef, defined $timeout ? $timeout : -1);
+    } until (defined $timeout);
 }
 
 # --------------------------------------------------------------
@@ -392,9 +419,9 @@ sub Loop {
 # using \n as delimiter.
 # --------------------------------------------------------------
 sub Expect {
-    my $self    = shift;
-    my $param   = shift;
-    my $timeout = shift || $self->{timeout};
+    my ($self, $param, $timeout) = @_;
+
+    $timeout ||= $self->{timeout};
 
     if ($self->{netobj}->timeout() ne $timeout) {
         $self->{netobj}->timeout($timeout);
@@ -469,8 +496,7 @@ sub Expect {
 # Chops the first one or two lines from a procedure to determine
 # if it could be used as a hook, among other things.
 sub _chophook {
-    my $self = shift;
-    my ($procref, $varref, $paramref) = @_;
+    my ($self, $procref, $varref, $paramref) = @_;
     my ($state, $wait);
     my $op = shift(@{$procref});
 
@@ -636,7 +662,9 @@ Autrijus Tang E<lt>autrijus@autrijus.org>
 
 Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
 
-All rights reserved.  You can redistribute and/or modify
-this module under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut

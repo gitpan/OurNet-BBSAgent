@@ -2,6 +2,7 @@ Cynix BBS
 bbs.cynix.com.tw
 
 load maple3.board
+setv separator \x0d(?:\e\[36m(?:¢w)+)|(?:\e\[47;34m\x20¸ô®|.+)\x20+\e\[m\e\[\d+;1H
 
 =article_post_raw
 call board $[board]

@@ -4,11 +4,7 @@ netoworld.twbbs.org.tw:23
 load maple2.board
 setv moretail	m/\[q\]\e\[30m結束\x20\x20\e\[0?m/
 setv postsign	1
-
-=main
-send \e[D\e[D\e[D\e[D\e[D\e[D
-wait 主功能表
-till Call機
+setv pager	Call機
 
 =board
 call main

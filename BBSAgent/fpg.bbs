@@ -7,6 +7,7 @@ setv headansiend 40;33m
 load maple2.board
 setv morehead	m/\e\[([\d;]+)m\x20\x20瀏覽\x20P./
 setv moretail	[q]\e[30m結束\x20\x20\e[0m
+setv pager	Call機
 
 =login
 wait 註冊：
@@ -21,11 +22,6 @@ else
 endo
 send \nqq
 goto main
-
-=main
-send \e[D\e[D\e[D\e[D\e[D\e[D
-wait 主功能表
-till Call機
 
 =board_list_last
 call board $[board]

@@ -6,6 +6,7 @@ load maple2.board
 setv cursor ●
 setv morehead m/\e\[0?m\e\[([\d;]+)m\x20\x20瀏覽\x20P./
 setv moretail 結束 # m/\[q\]\e\[30m結束\x20\x20\x20\e\[0?m/
+
 =main
 send \e[D\e[D\e[D\e[D\e[D\e[D
 wait 主功能表
@@ -25,54 +26,3 @@ wait 名稱：
 send $[board]\n\n\x201\n\nq\n
 wait 板主：
 till 文章選讀
-
-=group
-call main
-send 1\n
-wait 看板列表
-till \e[30;47m
-send 1\n
-
-=group_list_first
-call group 1
-send 1\npn
-wait \e[18;1H
-wait \e[30;47m
-till \x20
-exit
-
-=group_list_next
-send n
-wait \e[30;47m
-till \x20
-exit
-
-=trimester_move
-call trimester_add $[to],$[board]
-call trimester_del $[from],$[board]
-exit
-
-=trimester_add
-send /$[to]\nE
-wait 編輯文章
-send \x20$[board]\n\x18
-wait 檔案處理
-send s\n
-wait 看板列表
-exit
-
-=trimester_del
-send /$[from]\nE
-wait 編輯文章
-send \x13\x20$[board]\ny\n\x19\x18
-wait 檔案處理
-send s\n
-wait 看板列表
-exit
-
-=trimester_enter
-call main
-send 3\n
-wait 看板列表
-send /Trimesters\n\n
-wait 看板列表

@@ -1,22 +1,11 @@
-firebird2 bbs
-*
+Firebird2 Board
+
+load firebird2.base
 
 setv headl \x0d?
 setv headr :\x20(.+?)(?:,\x20信區:\x20.+)?$
 setv headi 發信人,標\x20\x20題,發信站
 setv separator \e\[\\d;1H
-
-setv statustail 停留
-
-=login
-wait 註冊請輸入
-send $[username]\n$[password]\n\n\nqqqqqq
-goto main
-
-=main
-send \e[D\e[D\e[D\e[D\e[D\e[D
-wait 主選單
-till $[statustail]
 
 =board
 call main
@@ -62,18 +51,6 @@ exit
 call board $[board]
 send \x10$[title]\n\n
 send $[body]
-# clean tailer (x-origin)
-# send \x14\x19\x19\x19 # delete by fascist aurijus
 send \x18s\n
 send \x20
-#doif $[author]
-    call article_edit_author $[author]
-#endo
-exit
-
-# FireBird 無法清掉 origin
-=article_edit_author
-send \x24E\x19\x19\x19\x19
-send \x18\n
-wait \e[1;44;33m時間
 exit
