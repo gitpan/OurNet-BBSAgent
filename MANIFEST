@@ -1,6 +1,7 @@
 MANIFEST
 README
 Changes
+Makefile.PL
 BBSAgent.pm
 BBSAgent/cvic.bbs
 BBSAgent/elixus.bbs

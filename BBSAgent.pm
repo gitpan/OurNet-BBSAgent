@@ -1,7 +1,7 @@
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.5';
+$OurNet::BBSAgent::VERSION = '1.51';
 
 use strict;
 use vars qw/$AUTOLOAD/;
