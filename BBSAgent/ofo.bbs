@@ -11,11 +11,8 @@ setv moretail	\e[30mµ²§ô\x20\x20\e[0m
 
 =login
 wait ¦WºÙ
-send \n$[username]
-doif $[password]
-	send \n$[password]\nn\n\n\nqq\nqqq
-	goto main
-endo
+send \n$[username]\n$[password]\nn\n\n\nqq\nqqq
+goto main
 
 =main
 send eeeeeeee

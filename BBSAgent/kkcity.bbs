@@ -1,6 +1,7 @@
 kkcity bbs
 bbs.kkcity.com.tw
 
+load maple3.board
 setv separator \x0d\e\[36m(?:¢w)+.*\x20\x20\e\[m\e\[\d+;1H
 
 =login

@@ -5,7 +5,7 @@ setv cursor	●
 setv morehead	m/\e\[0?m\e\[([\d;]+)m\x20\x20瀏覽\x20P./
 setv moretail	m/\[q\]\e\[30m結束\x20\x20\x20\e\[0?m/
 # 簽名檔在 post 後問
-setv postsign   0
+setv postsign	0
 
 =login
 wait 註冊：
@@ -83,7 +83,7 @@ exit
 =article_edit_author
 send \x24E\x19\x19\x19\x19
 # 1 empty 2 from 3 origin 4 --
-send \x14\x19\x19\x19\x19
+send \x14\x19\x19
 send \x18\n
 wait 文章選讀
 exit

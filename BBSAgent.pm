@@ -1,7 +1,7 @@
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.52';
+$OurNet::BBSAgent::VERSION = '1.53';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -13,18 +13,19 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
 
 =head1 SYNOPSIS
 
-    # To run it, make sure you have a 'cvic.bbs' file in the same
+    # To run it, make sure you have a 'elixus.bbs' file in the same
     # directory. Its contents is listed just below this section.
 
     use OurNet::BBSAgent;
 
-    my $cvic = new OurNet::BBSAgent('cvic.bbs', undef, 'testlog');
+    my $cvic = new OurNet::BBSAgent('elixus.bbs', undef, 'elixus.log');
 
-    # $cvic->{debug} = 1; # Turn on for debugging
+    # $cvic->{debug} = 1; # Turn on if you want debugging
 
     $cvic->login($ARGV[0] || 'guest', $ARGV[1]);
-    print "now at $cvic->{state}";
-    $cvic->Hook('balloon', \&callback);
+    callback($cvic->balloon()) while 1; # procedural handling
+
+    $cvic->Hook('balloon', \&callback); # callback-based handling
     $cvic->Loop;
 
     sub callback {
@@ -47,39 +48,36 @@ implement interactive robots, spiders, or other cross-service agents.
 This module has its own scripting language, which looks like this in
 a site description file:
 
-    CVIC BBS
-    cvic.org:23
+    ELIXUS BBS
+    elixus.org:23
 
     =login
-    wait 註冊
-      or 使用者
-
-
+    wait 代號：
     send $[username]\n
     doif $[password]
-        wait 密碼
-        send $[password]\n\n
+	wait 密碼：
+	send $[password]\nn\n
     endo
-    send \n\n\n
-    goto main
+    send \n\n\n\n
 
     =main
-    send eeeeeeee
+    send qqqqqqqq
     wait 主功能表
-    till Call機
+    till 呼叫器
 
     =balloon
     wait \e[1;33;46m★
-    till \e[37;45m\x20
-    till \x20\e[0m
+    till \x20\e[37;45m\x20
+    till \x20\e[m
     exit
 
     =balloon_reply
     send \x12
-    wait 回去：
+    wait 回應
     send $[message]\n
     wait [Y]
     send \n
+    wait \e[37;45m
     wait \e[m
     exit
 
@@ -115,7 +113,8 @@ and STRING into the return list.
 Sends STRING to remote host.
 
 =item doif CONDITION
-=item else CONDITION
+=item elif CONDITION
+=item else
 =item endo
 
 The usual flow control directives. Nested C<doif...endo>s is supported.
@@ -137,11 +136,11 @@ a 'state' - that is, multiple C<call>s to it will all be executed.
 
 Sets a global, non-overridable variable (see below).
 
-=item idle TIME
+=item idle NUMBER
 
 Sleep that much seconds.
 
-=item back
+=back
 
 =head2 Variable Handling
 
@@ -181,7 +180,7 @@ that begins with 'wait' (or 'call' and 'wait') so whenever the strings
 they expected are received, the responsible procedure is immediately
 called. You can also supply a call-back function to handle its results.
 
-For example, the code in L</SYNOPSIS> above 'hooks' a callback function
+For example, the code in L<SYNOPSIS> above 'hooks' a callback function
 to procedure 'balloon', then enters a event loop by calling C<Loop>,
 which never terminates except when the agent receives '!quit' via the
 balloon procedure.
@@ -203,8 +202,9 @@ use fields qw/bbsname bbsaddr bbsport bbsfile lastmatch loadstack
 # --------------------------------------------
 sub new {
     my $class = shift;
-    my $self  = ($] > 5.00562) ? fields::new($class)
-                               : do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
+    my $self  = ($] > 5.00562) 
+	? fields::new($class) 
+	: do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
 
     $self->{bbsfile} = shift
 	or die("You need to specify the bbs definition file.");
@@ -230,15 +230,14 @@ sub new {
     close *_FILE;
 
     $self->loadfile($self->{bbsfile});
+
     $self->{netobj} = Net::Telnet->new(
     	Timeout => $self->{timeout},
-		Errmode => sub { $self->{errmsg} = $_[0]; die($_[0]); },
-	);
+    );
     $self->{netobj}->open('Host' => $self->{bbsaddr},
                           'Port' => $self->{bbsport});
     $self->{netobj}->output_record_separator('');
     $self->{netobj}->input_log($_[0]) if $_[0];
-
     $self->{state} = '';
 
     return $self;
@@ -257,23 +256,29 @@ sub loadfile {
 
     return if $self->{loadstack}{$bbsfile}++;
 
-    open(local *_FILE, $bbsfile) or die "cannot find file: $bbsfile";
+    open(local *_FILE, $bbsfile)
+	or die "cannot find file: $bbsfile";
+
     <_FILE>; <_FILE>; # skip headers
 
     while (my $line = <_FILE>) {
-        chomp $line;
         next if $line =~ /^#|^\s*$/;
 
         if ($line =~ /^=(\w+)$/) {
             $self->{state}    = $1;
             $self->{proc}{$1} = [];
         }
-        elsif ($line =~ /^\s*(idle|load|doif|endo|goto|call|wait|send|else|till|setv|exit)\s*(.*)$/) {
+        elsif (
+	    $line =~ /^\s*(
+		idle|load|doif|endo|goto|call|wait|send|else|till|setv|exit
+	    )\s*(.*)$/x
+	) {
             if (!$self->{state}) {
                 # directives must belong to procedures...
-                if ($1 eq 'setv') {
-                    # ...but 'setv' is an exception.
+
+                if ($1 eq 'setv') { # ...but 'setv' is an exception.
                     my ($var, $val) = split(/\s/, $2, 2);
+
                     $val =~ s/\x5c\x5c/_!!!_/g;
                     $val =~ s/\\n/\015\012/g;
                     $val =~ s/\\e/\e/g;
@@ -281,12 +286,14 @@ sub loadfile {
                     $val =~ s/_!!!_/\x5c/g;
 
                     $val =~ s{\$\[([^\]]+)\]}{
-                         (exists $self->{var}{$1}? $self->{var}{$1} : '!notfound!')
-                    };
+                         (exists $self->{var}{$1})
+			    ? $self->{var}{$1} 
+			    : die("variable $1 not defined")
+                    }e;
+
                     $self->{var}{$var} = $val;
                 }
-                elsif ($1 eq 'load') {
-                    # ...but 'load' is another exception.
+                elsif ($1 eq 'load') { # ...but 'load' is another exception.
                     $self->loadfile(
                         -e $2 ? $2 :
                         substr($bbsfile, 0, rindex($bbsfile, '/') + 1) . $2
@@ -418,10 +425,11 @@ sub Expect {
     return unless @keys;
 
     print "Waiting: [", _plain(join(",", @keys)), "]\n" if $self->{debug};
-
-	($retval, $retkey) = ($self->{netobj}->waitfor(map {
-		m|^m/.*/[imsx]*$| ? ('Match' => $_) : ('String' => $_)
-	} @keys));
+    undef $self->{errmsg};
+    eval {($retval, $retkey) = ($self->{netobj}->waitfor(map {
+	m|^m/.*/[imsx]*$| ? ('Match' => $_) : ('String' => $_)
+    } @keys)) };
+    $self->{errmsg} = $@ if $@;
 
     if ($retkey) {
         # which one matched?
@@ -516,7 +524,6 @@ sub AUTOLOAD {
         print "Entering $sub ($params)\n" if $self->{debug};
 
         $self->_chophook(\@proc, \%var, \@_) if $flag;
-
         while (my $op = shift(@proc)) {
             my $param = shift(@proc);
 
@@ -584,6 +591,7 @@ sub AUTOLOAD {
                 return if $lastidx == $#result;
             }
             elsif ($op eq 'send') {
+		undef $self->{errmsg};
                 $self->{netobj}->send($param);
                 return if $self->{errmsg};
             }
@@ -612,6 +620,8 @@ sub AUTOLOAD {
         die "Undefined procedure '$sub' called";
     }
 }
+
+sub DESTROY {}
 
 1;
 

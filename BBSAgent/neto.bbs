@@ -3,7 +3,7 @@ netoworld.twbbs.org.tw:23
 
 load maple2.board
 setv moretail	m/\[q\]\e\[30mµ²§ô\x20\x20\e\[0?m/
-setv postsign   1
+setv postsign	1
 
 =main
 send \e[D\e[D\e[D\e[D\e[D\e[D
