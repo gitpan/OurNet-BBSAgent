@@ -1,7 +1,7 @@
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.51';
+$OurNet::BBSAgent::VERSION = '1.52';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -206,7 +206,9 @@ sub new {
     my $self  = ($] > 5.00562) ? fields::new($class)
                                : do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
 
-    $self->{bbsfile} = shift;
+    $self->{bbsfile} = shift
+	or die("You need to specify the bbs definition file.");
+
     $self->{timeout} = shift;
 
     die("Cannot find bbs definition file: $self->{bbsfile}")
@@ -219,7 +221,7 @@ sub new {
 
     if ($addr =~ /^(.*?)(:\d+)?$/) {
         $self->{bbsaddr} = $1;
-        $self->{bbsport} = substr($2, 1) || 23;
+        $self->{bbsport} = $2 ? substr($2, 1) : 23;
     }
     else {
         die("Malformed location line: $addr");

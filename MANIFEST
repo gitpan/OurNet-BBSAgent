@@ -2,8 +2,11 @@ MANIFEST
 README
 Changes
 Makefile.PL
+test.pl
 BBSAgent.pm
+BBSAgent/bahamut.bbs
 BBSAgent/cvic.bbs
+BBSAgent/cynix.bbs
 BBSAgent/elixus.bbs
 BBSAgent/firebird2.board
 BBSAgent/firebird3.board
@@ -24,3 +27,5 @@ BBSAgent/terry.bbs
 BBSAgent/tfg.bbs
 BBSAgent/tkucs.bbs
 BBSAgent/twserv.bbs
+BBSAgent/wretch.bbs
+BBSAgent/zoo.bbs

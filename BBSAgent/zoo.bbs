@@ -1,0 +1,12 @@
+ZOO BBS
+zoo.twbbs.org
+
+load maple2.board
+
+setv moretail	m/\[q\]\e\[30mµ²§ô\e\[201m/
+setv cursor	¡÷
+
+=login
+wait µù¥U
+send $[username]\n$[password]\nn\nq\x20q\x20q\x20q\x20q
+goto main
