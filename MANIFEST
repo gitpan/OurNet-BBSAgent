@@ -60,3 +60,4 @@ README
 SIGNATURE
 t/0-signature.t
 t/BBSAgent.t
+META.yml                                Module meta-data (added by MakeMaker)

@@ -1,10 +1,10 @@
 # $File: //depot/libOurNet/BBSAgent/BBSAgent.pm $ $Author: autrijus $
-# $Revision: #2 $ $Change: 3674 $ $DateTime: 2003/01/20 01:51:45 $
+# $Revision: #3 $ $Change: 6077 $ $DateTime: 2003/05/25 10:48:47 $
 
 package OurNet::BBSAgent;
 use 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.60';
+$OurNet::BBSAgent::VERSION = '1.61';
 
 use strict;
 use vars qw/$AUTOLOAD/;

@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.21.
+signed via the Module::Signature module, version 0.23.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,7 +14,7 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 6b20007cc7fc753e02d9e3880738bc012c645310 BBSAgent.pm
+SHA1 d1f2507ec4dd3559fd5d50dc83e8cc00251e5365 BBSAgent.pm
 SHA1 8bdf07b91e2f886e01026060de76023e36cd6038 BBSAgent/aquaphoto.bbs
 SHA1 71b865e1803d903b02b3fe3e99cc46cbad1f3942 BBSAgent/bahamut.bbs
 SHA1 a64043d910a1c65a0224989f67d3855ff52eefc0 BBSAgent/bandplaza.bbs
@@ -69,16 +69,17 @@ SHA1 8e3a47417e2c4c37c1c75e9cc93e0729de7b1ebb BBSAgent/twserv.bbs
 SHA1 a7fe730781562d09932e81469a0251ae99ac6721 BBSAgent/ufo.bbs
 SHA1 736ba7053f1ba044ea033e1a4a6bcfc8c5b8a32e BBSAgent/wretch.bbs
 SHA1 607b17cdfd472272be1c69ea84e9d1290969b1b1 BBSAgent/zoo.bbs
-SHA1 da39a3ee5e6b4b0d3255bfef95601890afd80709 Changes
-SHA1 4db015498ddd6fa0acbdacb526c0c32ad2de7792 MANIFEST
-SHA1 a27843f8001f88471d97feecd7fd680ef4d1add0 Makefile.PL
+SHA1 fc6ab22068fa79068d1a8641f1ce0e54cad280f5 Changes
+SHA1 50e0dc2a21f07a4c9f40b192620ce51a196e456c MANIFEST
+SHA1 d5ad4f442cf78a580e8664b244a588180a005172 META.yml
+SHA1 e807030acbb36167870fa69fcb59d7cc58681478 Makefile.PL
 SHA1 e65397485d0de12724d10704e4bbe62f5ec1e5ed README
 SHA1 8afcb24e1a9d06d192516a4a242984fb977503ab t/0-signature.t
 SHA1 bd503374b0afe9e00c0fe58c961d46055bdd357a t/BBSAgent.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (FreeBSD)
+Version: GnuPG v1.2.2 (FreeBSD)
 
-iD8DBQE+K16PtLPdNzw1AaARAlSWAJ95eSGHv8zoEGtP2VM0Gs0YroqSPwCfc/81
-nVbgce6CCealHYEmNqlhwvs=
-=epFl
+iD8DBQE+0KEutLPdNzw1AaARAqMWAJ9MY5XaxLcOtP8iP2JcUtzKUp/zjACggBCh
+ToyMhtKGAR+qwqcMwNfrBpQ=
+=4akK
 -----END PGP SIGNATURE-----
