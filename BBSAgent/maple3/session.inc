@@ -1,4 +1,4 @@
-Maple3/Melix Session
+Maple3 Session
 
 load maple3.base
 
@@ -11,6 +11,7 @@ exit
 =message_reply
 send \x12
 wait ¦^À³
+wait \e[23;1H
 send $[message]\n
 wait [Y]
 send \n

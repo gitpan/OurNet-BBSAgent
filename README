@@ -1,3 +1,6 @@
+# $File: //depot/OurNet-BBSAgent/README $ $Author: autrijus $
+# $Revision: #4 $ $Change: 1980 $ $DateTime: 2001/10/06 17:34:01 $
+
 This is the README file for OurNet::BBSAgent, a scriptable 
 telnet-based virtual user utility, by Elixir Group and OurInternet 
 Inc.

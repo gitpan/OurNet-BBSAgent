@@ -1,51 +1,37 @@
-Maple2/SOB Session
+Melix Session
 
-load maple2.base
+load melix.base
 
 =message
-wait \e[K\e[1;33;46m★
-till \e[37;45m\x20
+wait \e[1;33;46m
+wait m/../
+till \x20\e[37;45m\x20
 till \x20\e[m
-send x
 exit
 
 =message_reply
 send \x12
-wait 過去
+wait \e[m
+wait \e[23;1H
 send $[message]\n
-wait [Y/n]
+wait [Y]
 send \n
+wait \e[37;45m
+wait \e[m
 exit
 
-# XXX: check if the cursor points to the recipient!
 =message_send
 call talk_users
 send /
-wait 代號：
+wait \e[7m
 send $[receiver]\n
-send w
-wait Call-In
+wait $[receiver]
+send s
+wait \e[7m
 send $[message]\n
-wait [Y/n]
+wait [Y]
 send \n
-exit
-
-=talk
-call main
-send t\n
-wait 聊天說話
-till $[pager]
-
-=talk_users
-call talk
-send u\n
-wait m/休閒聊天|好友列表/
-till (TAB/f)
-
-=talk_users_refresh
-send \x15
-wait 休閒聊天
-till (TAB/f)
+wait \e[m
 exit
 
 =chat_enter
@@ -81,13 +67,22 @@ send /m $[caller] $[message]\n
 wait $[message]
 exit
 
-=query_user
-call talk_users
-send /
-wait 代號：
-send $[id]\n
-send q
-wait 《ＩＤ暱稱》
-till 繼續
-send \x20
-exit 
+=talk
+call main
+send t\n
+wait \e[;H\e[2J\e[1;44;37m
+till ]\e[31m
+
+=talk_users
+call talk
+send u\n
+wait \e[;H\e[2J\e[1;44;37m
+wait \e[44m
+wait \e[m
+
+=talk_users_refresh
+send \x15
+wait \e[;H\e[2J\e[1;44;37m
+wait \e[44m
+wait \e[m
+exit

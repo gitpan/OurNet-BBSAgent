@@ -1,10 +1,10 @@
 # $File: //depot/OurNet-BBSAgent/BBSAgent.pm $ $Author: autrijus $
-# $Revision: #21 $ $Change: 1634 $ $DateTime: 2001/08/31 17:05:12 $
+# $Revision: #27 $ $Change: 1980 $ $DateTime: 2001/10/06 17:34:01 $
 
 package OurNet::BBSAgent;
 use 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.57';
+$OurNet::BBSAgent::VERSION = '1.58';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -16,40 +16,46 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
 
 =head1 SYNOPSIS
 
+    #!/usr/local/bin/perl
     # To run it, make sure you have a 'elixus.bbs' file in the same
     # directory. The actual content is listed just below this section.
 
+    use strict;
     use OurNet::BBSAgent;
 
     my $remote  = 'elixus.bbs';
-    my $timeout = 10;
-    my $logfile = 'elixus.org';
-
+    my $timeout = undef; # no timeout
+    my $logfile = 'elixus.log';
     my $bbs = OurNet::BBSAgent->new($remote, $timeout, $logfile);
 
-    $bbs->{debug} = 0; # set to 1 if you want debugging
-    $bbs->login($ARGV[0] || 'guest', $ARGV[1]);
+    $bbs->{debug} = 1; # set to 0 if you want to disable debugging
+    $bbs->login($ARGV[0] || 'guest', $ARGV[1]); # username and password
 
-    callback($bbs->message) while 1; # procedural interface
-
-    $bbs->Hook('message', \&callback); # callback-based interface
-    $bbs->Loop;
+    # randomly decides between two (equivalent) syntaxes...
+    if (int(rand(2))) {
+	# procedural interface
+	callback($bbs->message) while 1; 
+    }
+    else {
+	# callback-based interface
+	$bbs->Hook('message', \&callback); 
+	$bbs->Loop;
+    }
 
     sub callback {
-        ($caller, $message) = @_;
-        print "Received: $message\n";
-        if ($message eq '!quit') {
-	    $bbs->logoff;
-	    exit;
-	}
-        $bbs->message_reply("$caller, I've got your message!");
+	my ($caller, $message) = @_;
+
+	print "Received: $message\n";
+
+	$bbs->logoff and exit if ($message eq '!quit');
+	$bbs->message_reply("$caller: $message");
     }
 
 =head1 DESCRIPTION
 
 OurNet::BBSAgent provides an object-oriented interface to TCP/IP
 based interactive services (e.g. BBS, IRC, ICQ and Telnet), by 
-simulating as a "virtual user" with action defined by a script 
+simulating as a I<virtual user> with action defined by a script 
 language. 
 
 The developer could then use the same methods to access different 
@@ -61,36 +67,42 @@ cross-service agents.
 This module has its own scripting language, which looks like this in
 a site description file:
 
-    ELIXUS BBS
+    Elixus BBS
     elixus.org:23
 
     =login
-    wait 代號：
+    wait \e[7m
     send $[username]\n
     doif $[password]
-	wait 密碼：
-	send $[password]\nn\n
+        wait \e[7m
+        send $[password]\nn\n
     endo
-    send \n\n\n\n
+    # login failure, unsaved article, kick multi-logins
+    send \n\n\n
+    # skips splash screens (if any)
+    send \x20\x20\x20
 
     =main
     send qqqqqqee
-    wait 主功能表
-    till 呼叫器
+    wait \e[;H\e[2J\e[1;44;37m
+    till ]\e[31m
 
     =logoff
     call main
-    send \nn\ny\ny\n\n\n
+    send g\ng\ny\ny\n\n\n
+    exit
 
     =message
-    wait \e[1;33;46m★
+    wait \e[1;33;46m
+    wait m/../
     till \x20\e[37;45m\x20
     till \x20\e[m
     exit
 
     =message_reply
     send \x12
-    wait 回應
+    wait \e[m
+    wait \e[23;1H
     send $[message]\n
     wait [Y]
     send \n
@@ -98,7 +110,7 @@ a site description file:
     wait \e[m
     exit
 
-The first two lines describes the service's title, its IP address and
+The first two lines describe the service's title, its IP address and
 port number. Any number of I<procedures> then begins with C<=procname>,
 which could be called like C<$object-E<gt>procname([arguments])> in the
 program. 
@@ -107,22 +119,22 @@ All procedures are consisted of following directives:
 
 =over 4
 
-=item load FILENAME
+=item load I<FILENAME>
 
 This directive must be used before any procedures. It loads another
 BBS definition file under the same directory (or current directory).
 
-If the FILENAME has an extentions other than C<.bbs> (eg. C<.board>,
+If the I<FILENAME> has an extention other than C<.bbs> (eg. C<.board>,
 C<.session>), BBSAgent will try to locate additional modules by 
 expanding C<.> into C</>, and look for the required module with an
 C<.inc> extention. For example, C<load maple3.board> will look for
 C<maple3/board.inc> in the same directory.  
 
-=item wait STRING
+=item wait I<STRING>
 
-=item till STRING
+=item till I<STRING>
 
-=item   or STRING
+=item   or I<STRING>
 
 Tells the agent to wait until STRING is sent by remote host. May time
 out after C<$self-E<gt>{timeout}> seconds. Each trailing C<or> directives
@@ -135,13 +147,13 @@ The C<till> directive is functionally equivalent to C<wait>, except that
 it will puts anything between the last C<wait> or C<till> and STRING 
 into the return list.
 
-=item send STRING
+=item send I<STRING>
 
 Sends STRING to remote host.
 
-=item doif CONDITION
+=item doif I<CONDITION>
 
-=item elif CONDITION
+=item elif I<CONDITION>
 
 =item else
 
@@ -149,9 +161,9 @@ Sends STRING to remote host.
 
 The usual flow control directives. Nested C<doif...endo>s are supported.
 
-=item goto PROCEDURE
+=item goto I<PROCEDURE>
 
-=item call PROCEDURE
+=item call I<PROCEDURE>
 
 Executes another procedure in the site description file. A C<goto> never
 returns, while a C<call> always will. Also, a C<call> will not occur if
@@ -163,11 +175,11 @@ C<exit>.
 Marks the termination of a procedure; also denotes that this procedure is
 not a I<state> - that is, multiple C<call>s to it will all be executed.
 
-=item setv VAR STRING
+=item setv I<VAR> I<STRING>
 
 Sets a global, non-overridable variable (see below).
 
-=item idle NUMBER
+=item idle I<NUMBER>
 
 Sleep that much seconds.
 
@@ -214,7 +226,7 @@ the strings they expected are received, the responsible procedure is
 immediately called. You may also supply a call-back function to handle
 its results.
 
-For example, the code in L<SYNOPSIS> above I<hooks> a callback function
+For example, the code in L</SYNOPSIS> above I<hooks> a callback function
 to procedure C<message>, then enters a event loop by calling C<Loop>, 
 which goes on forever until the agent receives C<!quit> via the C<message>
 procedure.
@@ -244,7 +256,7 @@ sub new {
     $self->{timeout} = shift;
 
     die("Cannot find bbs definition file: $self->{bbsfile}")
-        unless -e $self->{bbsfile};
+        unless -f ($self->{bbsfile} = _locate($self->{bbsfile}));
 
     open(local *_FILE, $self->{bbsfile});
 
@@ -281,12 +293,23 @@ sub new {
     return $self;
 }
 
+sub _locate {
+    my $file = shift;
+    my $pkg = __PACKAGE__; $pkg =~ s|::|/|g;
+
+    return $file if -f $file;
+	
+    foreach my $path (map { $_, "$_/$pkg" } ('.', @INC)) {
+        return "$path/$file" if -f "$path/$file";
+    }
+}
+
 sub _plain {
-  my $str = $_[0];
+    my $str = $_[0];
 
-  $str =~ s/([\x00-\x20])/sprintf('\x%02x', ord($1))/eg;
+    $str =~ s/([\x00-\x20])/sprintf('\x%02x', ord($1))/eg;
 
-  return $str;
+    return $str;
 }
 
 sub loadfile {
@@ -294,6 +317,7 @@ sub loadfile {
 
     return if $self->{loadstack}{$bbsfile}++; # recursion prevention
 
+    $bbsfile =~ tr|\\|/|;
     $path ||= substr($bbsfile, 0, rindex($bbsfile, '/') + 1);
 
     open(local *_FILE, $bbsfile)
@@ -495,16 +519,16 @@ sub Expect {
 
     if ($wait{$retkey}) {
         # Hook call.
-        $AUTOLOAD = $wait{$retkey}->[0];
+        my $sub  = $AUTOLOAD = $wait{$retkey}->[0];
+        my $code = $wait{$retkey}->[2];
 
-        if (ref($wait{$retkey}->[2]) eq 'CODE') {
-            &{$wait{$retkey}->[2]}(
-                # &{$wait{$retkey}->[0]}
-                $self->AUTOLOAD(\'1', @{$wait{$retkey}}[3..$#{$wait{$retkey}}])
-            );
+        if (UNIVERSAL::isa($code, 'CODE')) {
+	    $self->Unhook($sub);
+            $code->($self->AUTOLOAD(\'1', @{$wait{$retkey}}[3 .. $#{$wait{$retkey}}]));
+            $self->Hook($sub, $code);
         }
         else {
-            $self->AUTOLOAD(\'1', @{$wait{$retkey}}[3..$#{$wait{$retkey}}])
+            $self->AUTOLOAD(\'1', @{$wait{$retkey}}[3 .. $#{$wait{$retkey}}])
         }
     }
     else {

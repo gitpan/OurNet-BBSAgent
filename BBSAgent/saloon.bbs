@@ -1,0 +1,40 @@
+Saloon BBS
+saloon.twbbs.org:23
+
+load maple2.board
+setv postsign 1
+setv cursor →
+
+=login
+wait 代號：
+send $[username]\n
+send $[password]\n
+send n\nq\x20q\x20q\x20q\x20q
+goto main
+
+=board
+send s
+wait 名稱
+send $[board]\n\x20\x20
+wait 板主：
+till 進階指令
+
+=board_article_fetch_last
+send qq
+wait 進階指令
+exit
+
+=board_list_author
+call board $[board]
+send a$[author]\n
+wait $[cursor]
+till 進階指令
+exit
+
+=article_edit_author
+send \x24E\x19\x19\x19\x19
+# 1 empty 2 from 3 origin 4 --
+send \x14\x19\x19
+send \x18\n
+wait 進階指令
+exit

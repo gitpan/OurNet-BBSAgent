@@ -26,6 +26,7 @@ exit
 =board_article_fetch_first
 call board $[board]
 send $[article]\n\n
+wait m/\e\[2?J/
 till $[morehead]
 wait (
 till )

@@ -2,4 +2,5 @@ PTT BBS
 ptt.csie.ntu.edu.tw:3003
 
 load maple2.board
+load maple2.session
 setv postsign 1

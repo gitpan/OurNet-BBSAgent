@@ -1,10 +1,13 @@
 Firebird2 Base
 
-setv statustail °±¯d
+setv statustail °±¯d[
+setv afterlogin qqqqqq
 
 =login
 wait µù¥U½Ð¿é¤J
-send $[username]\n$[password]\n\n\nqqqqqq
+send $[username]\n$[password]\n\n\n
+send $[afterlogin]
+
 goto main
 
 =main

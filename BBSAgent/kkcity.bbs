@@ -30,7 +30,8 @@ till ¤å³¹¾\Åª
 
 =board_list_last
 call board $[board]
-send 1\n\x24
+send \x24\x0c
+wait ªO¥D¡G
 wait \x0d>
 till /
 exit

@@ -1,20 +1,20 @@
-Maple3 Board
+Melix Board
 
-load maple3.base
+load melix.base
 
 =board
 call main
-send b\n
-send s
-wait 名稱
+send s\n
+wait \e[7m
 send $[board]\n\x20\x20
-wait 板主：
-wait 文  章  標  題
+wait \e[;H\e[2J\e[1;44;37m
+wait \e[44m
+wait \e[m
 
 =board_list_last
 call board $[board]
 send 1\n\x24h\x20 # 1, $, h, space
-wait 板主：
+wait \e[;H\e[2J\e[1;44;37m
 wait \x0d>
 till /
 exit
@@ -39,15 +39,24 @@ exit
 
 =board_article_fetch_last
 send q
-till 板主：
+wait \e[;H\e[2J\e[1;44;37m
 exit
 
-# 簽名檔 post 前就問
 =article_post_raw
 call board $[board]
-send \x10$[title]\n0\n$[body]
+send \x10
+wait \e[7m
+send $[title]\n
+wait \e[7m
+send 0\n
+send $[body]
 # clean header
 send \x13\x19\x19\x19\x19
-# save
-send \x18s\n\x20
-exit
+send \x18
+wait \e[7m
+send s\n
+wait \e[m
+send \x20
+exit 
+
+

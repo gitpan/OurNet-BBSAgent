@@ -1,10 +1,10 @@
-Maple3 Base
+Melix Base
 
 =login
-wait 代號：
+wait \e[7m
 send $[username]\n
 doif $[password]
-    wait 密碼：
+    wait \e[7m
     send $[password]\nn\n
 endo
 # login failure, unsaved article, kick multi-logins
@@ -14,8 +14,8 @@ send \x20\x20\x20
 
 =main
 send qqqqqqee
-wait 主功能表
-till 呼叫器
+wait \e[;H\e[2J\e[1;44;37m
+till ]\e[31m
 
 =logoff
 call main

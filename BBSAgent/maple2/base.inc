@@ -1,12 +1,12 @@
 Maple2/SOB Base
 
-setv pager      ¦©¾÷
+setv pager	¦©¾÷
 
 =login
 wait µù¥U¡G
 send $[username]\n
 send $[password]\n
-send n\nq\x20q\x20q\x20q\x20q
+send n\nn\nq\x20q\x20q\x20q\x20q
 goto main
 
 =main

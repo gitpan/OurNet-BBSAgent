@@ -1,0 +1,19 @@
+Maxwell BBS
+bbs.ee.ntu.edu.tw
+
+load maple2.board
+
+setv morehead	m/\e\[0?m--More--\x20P\./
+setv moretail	m/\[q\]結束/
+setv cursor	>
+setv pager	(G)oodbye
+setv headi	發信人,標  題,發信站
+setv headl	\n
+setv headr	:\x20(.+?)(?:,\x20.+)?\x20+$
+setv separator	\e\[6;1H
+
+=login
+wait 註冊
+send $[username]\n
+send $[password]\nn\nq\x20q\x20q\x20q\x20q
+goto main

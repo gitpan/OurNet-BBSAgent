@@ -1,5 +1,5 @@
-Elixus BBS
-elixus.org:23
+My Elixir BBS
+localhost:3001
 
 load melix.board
 load melix.session
