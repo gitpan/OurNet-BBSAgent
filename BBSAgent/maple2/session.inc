@@ -2,7 +2,7 @@ Maple2/SOB Session
 
 load maple2.base
 
-=messsage
+=message
 wait \e[1;33;46m¡¹
 till \e[37;45m\x20
 till \x20\e[0m

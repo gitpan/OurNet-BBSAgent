@@ -1,4 +1,50 @@
 ____________________________________________________________________________
+[  1483] By: autrijus@autricvic                    on 2001/07/23 01:25:46
+	Log: * this be BBSAgent 1.56, maintenence release.
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1463] By: autrijus@whitegnote                   on 2001/07/18 01:50:15
+	Log: * transparent crlf/text mode conversion
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1256] By: autrijus@autribsd                     on 2001/06/21 11:04:49
+	Log: * BBSAgent pod cleanup
+	     * modified logoff() routine for m3
+	     * twserv: balloon to message controvercy continues
+       Path: BBSAgent
+	   ! maple3/base.inc twserv.bbs
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1252] By: autrijus@autricvic                    on 2001/06/20 20:13:23
+	Log: * updated changes
+       Path: .
+	   ! Changes
+____________________________________________________________________________
+[  1251] By: autrijus@autribsd                     on 2001/06/20 20:06:33
+	Log: * oops! session wasn't working
+       Path: BBSAgent
+	   ! maple2/session.inc
+____________________________________________________________________________
+[  1250] By: autrijus@autribsd                     on 2001/06/20 19:31:43
+	Log: * This be OurNet::BBSAgent v1.55.
+       Path: BBSAgent
+	   ! ptt2.bbs
+       Path: .
+	   ! BBSAgent.pm README
+____________________________________________________________________________
+[  1239] By: autrijus@autribsd                     on 2001/06/20 05:13:18
+	Log: * import from vgod's BBSICQ, changed balloon to message
+       Path: BBSAgent
+	   ! ofo.bbs ptt2.bbs
+____________________________________________________________________________
+[  1223] By: autrijus@autricvic                    on 2001/06/19 17:26:10
+	Log: * update Changes in preperation to 1.55 release
+       Path: .
+	   ! Changes
+____________________________________________________________________________
 [  1219] By: autrijus@autrimobl                    on 2001/06/19 03:57:25
 	Log: * ebx -h now works under win32
 	     * updated makeebx

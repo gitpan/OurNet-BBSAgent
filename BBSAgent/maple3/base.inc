@@ -15,4 +15,6 @@ wait 主功能表
 till 呼叫器
 
 =logoff
-send eeeeeeeeeeee\nn\ny\ny\n\n\n
+call main
+send \nn\ny\ny\n\n\n
+exit

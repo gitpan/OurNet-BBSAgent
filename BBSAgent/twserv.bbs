@@ -14,13 +14,13 @@ send \e[D\e[D\e[D\e[D\e[D\e[D
 wait 主功能表
 till Call機
 
-=balloon
+=message
 wait [1;33;46m\xa1\xb9
 till \x1b\x5b37;45m\x20
 till \x20\x1b\x5b\x6d
 exit
 
-=balloon_reply
+=message_reply
 send \x12
 wait 水球丟過去
 send $[message]\n
@@ -29,7 +29,7 @@ send \n
 wait \x20\x1b\x5b\x6d
 exit
 
-=balloon_send
+=message_send
 call talk_users
 send /
 wait 代號：
@@ -180,7 +180,7 @@ wait [C]
 send c\n
 goto main
 
-=chat_msg
+=chat_message_send
 send /m $[caller] $[message]\n
 wait $[message]
 exit

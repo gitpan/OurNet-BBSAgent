@@ -1,10 +1,10 @@
 # $File: //depot/OurNet-BBSAgent/BBSAgent.pm $ $Author: autrijus $
-# $Revision: #16 $ $Change: 1250 $ $DateTime: 2001/06/20 19:31:43 $
+# $Revision: #19 $ $Change: 1483 $ $DateTime: 2001/07/23 01:25:46 $
 
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.55';
+$OurNet::BBSAgent::VERSION = '1.56';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -17,11 +17,15 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
 =head1 SYNOPSIS
 
     # To run it, make sure you have a 'elixus.bbs' file in the same
-    # directory. Its contents is listed just below this section.
+    # directory. The actual content is listed just below this section.
 
     use OurNet::BBSAgent;
 
-    my $bbs = new OurNet::BBSAgent('elixus.bbs', undef, 'elixus.log');
+    my $remote  = 'elixus.bbs';
+    my $timeout = 10;
+    my $logfile = 'elixus.org';
+
+    my $bbs = OurNet::BBSAgent->new($remote, $timeout, $logfile);
 
     $bbs->{debug} = 0; # set to 1 if you want debugging
     $bbs->login($ARGV[0] || 'guest', $ARGV[1]);
@@ -43,11 +47,14 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
 
 =head1 DESCRIPTION
 
-OurNet::BBSAgent provides an object-oriented interface to TCP/IP-based
-interactive services (e.g. BBS, IRC, ICQ and Telnet), by simulating as
-a "virtual user" with action defined by a script language. The developer
-could then use the same methods to access different services, to easily
-implement interactive robots, spiders, or other cross-service agents.
+OurNet::BBSAgent provides an object-oriented interface to TCP/IP
+based interactive services (e.g. BBS, IRC, ICQ and Telnet), by 
+simulating as a "virtual user" with action defined by a script 
+language. 
+
+The developer could then use the same methods to access different 
+services, to easily implement interactive robots, spiders, or other 
+cross-service agents.
 
 =head2 Site Description File
 
@@ -72,7 +79,8 @@ a site description file:
     till ©I¥s¾¹
 
     =logoff
-    send eeeeeeeeeeee\nn\ny\ny\n\n\n
+    call main
+    send \nn\ny\ny\n\n\n
 
     =message
     wait \e[1;33;46m¡¹
@@ -92,10 +100,12 @@ a site description file:
 
 The first two lines describes the service's title, its IP address and
 port number. Any number of 'procedures' then begins with C<=procname>,
-which could be called like C<$object->procname([arguments])> in the
-program. Each procedure is made by any number of following directives:
+which could be called like C<$object-E<gt>procname([arguments])> in the
+program. 
 
-=over
+All procedures are consisted of following directives:
+
+=over 4
 
 =item load FILENAME
 
@@ -108,15 +118,17 @@ C<.inc> extention. For example, C<load maple3.board> will look for
 <maple3/board.inc> in the same directory.  
 
 =item wait STRING
+
 =item till STRING
+
 =item   or STRING
 
 Tells the agent to wait until STRING is sent by remote host. Might time
-out after C<$self->{timeout}> seconds. Any trailing C<or> directives
+out after C<$self-E<gt>{timeout}> seconds. Any trailing C<or> directives
 specifies an alternative string to match.
 
 If STRING is of format C<m/.*/[imsx]*>, it will be treated as a regular
-expression. Any capturing parentheses will be silently ignored.
+expression. Capturing parentheses are silently ignored.
 
 The C<till> directive is functionally equivalent to C<wait>, except that
 it will puts anything between the last C<wait> or C<till> and STRING 
@@ -127,13 +139,17 @@ into the return list.
 Sends STRING to remote host.
 
 =item doif CONDITION
+
 =item elif CONDITION
+
 =item else
+
 =item endo
 
 The usual flow control directives. Nested C<doif...endo>s are supported.
 
 =item goto PROCEDURE
+
 =item call PROCEDURE
 
 Executes another procedure in the site description file. A C<goto> never
@@ -158,10 +174,10 @@ Sleep that much seconds.
 
 =head2 Variable Handling
 
-Whenever a variable in the form of C<$[name]> is encountered as part of
-a directive, it will be looked up in the global 'setv' hash C<$self->{var}>
-first, then at the procedure-scoped variable hash, then finally C<shift()>ed
-from the argument list if none are found.
+Whenever a variable in the form of $[name] is encountered as part 
+of a directive, it will be looked up in the global 'setv' hash 
+C<$self-E<gt>{var}> first, then at the procedure-scoped variable hash, 
+then finally C<shift()>ed from the argument list if none are found.
 
 For example:
 
@@ -173,7 +189,7 @@ For example:
     send $[password] # sends the second argument
     send $[username] # sends the first argument again
 
-A notable exception is digits-only subscripts (e.g. $[1]), which contains
+A notable exception are digits-only subscripts (e.g. $[1]), which contains
 the matched string in the previous 'wait' or 'till' directive. If there
 are multiple strings via 'or' directives, the subscript correspond to the
 matched alternative. For example:
@@ -195,13 +211,12 @@ they expected are received, the responsible procedure is immediately
 called. You can also supply a call-back function to handle its results.
 
 For example, the code in L<SYNOPSIS> above 'hooks' a callback function
-to procedure 'message', then enters a event loop by calling C<Loop>,
-which never terminates except when the agent receives '!quit' via the
+to procedure 'message', then enters a event loop by calling C<Loop>.
+
+A loop never terminates except when the agent receives '!quit' via the
 message procedure.
 
-The internal hook table could be accessed by $obj->{hook}. It is
-implemented via a hash of hash of hash of lists -- Kids, don't try
-this at home!
+The internal hook table could be accessed by C<$obj-E<gt>{hook}>.
 
 =cut
 
@@ -233,7 +248,7 @@ sub new {
     chomp($self->{bbsname} = <_FILE>);
     chomp(my $addr = <_FILE>);
 
-    if ($addr =~ /^(.*?)(:\d+)?$/) {
+    if ($addr =~ /^(.*?)(:\d+)?\r?$/) {
         $self->{bbsaddr} = $1;
         $self->{bbsport} = $2 ? substr($2, 1) : 23;
     }
@@ -284,6 +299,8 @@ sub loadfile {
     <_FILE>; <_FILE>; # skip headers
 
     while (my $line = <_FILE>) {
+    	$line =~ s/\r$//; # unix brain damage
+
         next if $line =~ /^#|^[\s\t]*$/;
         $line =~ s/[\s\t]+\#[\s\t]+.+$//;
 
