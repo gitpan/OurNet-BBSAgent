@@ -1,0 +1,18 @@
+SUMMER BBS
+summer.ck.tp.edu.tw:23
+
+load maple2.board
+setv moretail	m/\[q\]\e\[30m結束\x20\x20\e\[0?m/
+
+=main
+send \e[D\e[D\e[D\e[D\e[D\e[D
+wait 主功能表
+till 摳機
+
+=article_edit_author
+send \x24E\x19\x19\x19\x19
+# 1-2 from,origin 3 --
+send \x14\x19\x19\x19
+send \x18\n
+wait 文章選讀
+exit

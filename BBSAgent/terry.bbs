@@ -1,0 +1,5 @@
+terry bbs
+terry.dragon2.net
+
+load maple3.board
+setv separator \x0d(?:\e\[36m(?:¢w)+)|(?:\e\[47;34m\x20¸ô®|.+)\x20+\e\[m\e\[\d+;1H

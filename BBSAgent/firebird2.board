@@ -1,0 +1,79 @@
+firebird2 bbs
+*
+
+setv headl \x0d?
+setv headr :\x20(.+?)(?:,\x20信區:\x20.+)?$
+setv headi 發信人,標\x20\x20題,發信站
+setv separator \e\[\\d;1H
+
+setv statustail 停留
+
+=login
+wait 註冊請輸入
+send $[username]\n$[password]\n\n\nqqqqqq
+goto main
+
+=main
+send \e[D\e[D\e[D\e[D\e[D\e[D
+wait 主選單
+till $[statustail]
+
+=board
+call main
+send s\n
+wait 自動搜尋):
+send $[board]\nr\n\x20
+wait 板主:
+till $[statustail]
+
+=board_list_last
+call board $[board]
+send 1\n\x24
+wait \x0d>
+till 時間
+exit
+
+=board_article_fetch_first
+call board $[board]
+send $[article]\n\n
+wait \e[J
+till \e[1;44;31m[閱讀文章]
+  or \e[1;44;32m下面還有喔
+till 結束
+wait m/\^X\x20?或\x20?p\x20\e\[m/
+  or │\x20\x20\x20\x20\x20\e[m
+exit
+
+=board_article_fetch_next
+send \x20
+till \e[1;44;31m[閱讀文章]
+  or \e[1;44;32m下面還有喔
+till 結束
+wait m/\^X\x20?或\x20?p\x20\e\[m/
+  or │\x20\x20\x20\x20\x20\e[m
+exit
+
+=board_article_fetch_last
+send q
+wait \e[1;44;33m時間
+exit
+
+=article_post_raw
+call board $[board]
+send \x10$[title]\n\n
+send $[body]
+# clean tailer (x-origin)
+send \x14\x19\x19\x19
+send \x18s\n
+send \x20
+#doif $[author]
+    call article_edit_author $[author]
+#endo
+exit
+
+# FireBird 無法清掉 origin
+=article_edit_author
+send \x24E\x19\x19\x19\x19
+send \x18\n
+wait \e[1;44;33m時間
+exit

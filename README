@@ -1,0 +1,37 @@
+This is the README file for OurNet::BBSAgent, a scriptable 
+telnet-based virtual user utility, by Elixir Group and OurInternet 
+Inc.
+
+* Installation
+
+libOurNet uses the standard perl module install process:
+
+perl Makefile.PL
+make
+make install
+
+* Copyright
+
+Copyright 2001 by Autrijus Tang <autrijus@autrijus.org>.
+
+All rights reserved.  You can redistribute and/or modify
+this bundle under the same terms as Perl itself.
+
+* Introduction
+
+Besides static page-based sites, many Internet services needs to interact
+with users, like BBS, IRC, ICQ and Telnet services. There are no "search
+engines" or "portals" for these services, simply because it was very
+difficult to automatically gather their contents, or to post data on them.
+
+OurNet::BBSAgent provides an object-oriented interface to those services,
+by simulating as a "virtual user" with action defined by a script language.
+The developer could then use the same methods to access different services,
+to easily implement interactive robots, spiders, or other cross-service
+agents.
+
+The scripting language of OurNet::BBSAgent is easy to learn, powerful, and
+has both flow-control and event-driven capabilities. The engine also accepts
+action scripts written in another language. Multiple agents could be
+dispatched simultaneously with multi-threading support.
+

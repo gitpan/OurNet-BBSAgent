@@ -1,0 +1,122 @@
+Revision history for Perl extension OurNet::BBSAgent.
+
+[v1.5] 
+
+Change 883 on 2001/02/27 by autrijus@autribsd
+
+           * branch out for seperate release 
+
+[v1.4]
+
+Change 872 on 2001/06/02 by autrijus@autribsd
+
+	* massive readjustment for sanity testing
+	* BBS-BBSAgent.t now tests each bbs's sanity
+	* BBS-BBSAgent.t tests login sanity if cmdline argument specified.
+	* fixed ofo.bbs for guest logins, now silently fails
+	* upon error, BBSAgent.pm now returns via $bbsagent->{errmsg} instead of die.
+
+Change 871 on 2001/06/01 by autrijus@autribsd
+
+	   * added headl, headr, headi in BBSAgent processing
+	* incoporated kcwu's suggested features, but reimplemented
+	* numberous templates fix
+
+Change 841 on 2001/05/31 by autrijus@autribsd
+
+	   * imports smartboy's bbs set.
+	* fixes cvic.bbs and remove password inclusion (bad practice)
+	* updates MANIFEST
+
+Change 832 on 2001/05/28 by autrijus@autribsd
+
+	   * fixed warning on articlegroup int() call
+	* did away with *all* \d in bbsagent retrieval
+	* introduced the new elixus.bbs
+	* ebxpass now recognizes optional 3rd argument as user
+
+Change 817 on 2001/05/26 by clkao@claptop
+
+	fix article_fetch_last. don't kick existing user.
+
+Change 813 on 2001/05/26 by autrijus@autribsd
+
+	   * modify test to elixus.org instead of openbazaar
+	* add preliminary elixus.bbs template
+
+Change 600 on 2001/03/24 by clkao@claptop
+
+	use BBSAgent new feature to speed up failure of article_fetch.
+
+Change 595 on 2001/03/23 by clkao@claptop
+
+	add article_post.
+
+Change 585 on 2001/03/22 by autrijus@clwin
+
+	* full BBSAgent STORE support finished.
+	* article_post_raw now only attempt to change author if it's not the poster herself
+
+Change 584 on 2001/03/22 by clkao@claptop
+
+	add article_post_raw.
+
+Change 578 on 2001/03/21 by clkao@claptop
+
+	catch up with latest bbsagent. use new regexp matching function.
+
+Change 561 on 2001/03/20 by autrijus@clwin
+
+	* {header} on BBSAgent backend implemented, including Message-ID.
+
+Change 430 on 2001/02/08 by clkao@claptop
+
+	catch up the additional board_article_fetch_last proc in description.
+	fix ptt2 template to retrieve articles correctly.
+
+Change 429 on 2001/02/08 by clkao@claptop
+
+	enable change author. yoyee!
+
+Change 423 on 2001/02/07 by clkao@claptop
+
+	typo.
+
+Change 422 on 2001/02/07 by clkao@claptop
+
+	* add second arg to BCOM::BAgent for login user. (kludge)
+	* use article_post_raw to emulate verbatim posting
+
+Change 421 on 2001/02/07 by clkao@claptop
+
+	add article_post
+
+Change 420 on 2001/02/07 by clkao@claptop
+
+	add twserv template and some fixes to BCOM::BAgent to make it work.
+
+Change 386 on 2001/01/24 by clkao@claptop
+
+	ofo.bbs. Submitted by: vgod@cirx.org
+
+Change 342 on 2001/01/12 by autrijus@autribsd
+
+	   * cleared up PlClient STORE and FETCH
+	   * integrated *.bbs to put under BBSAgent/ instead of BBS/BBSAgent/
+	   * added splice work'round under 5.7.1.
+	   * much better test cases, including RPC ones
+	   * updated version number for FuzzyIndex
+
+Change 313 on 2000/12/27 by clkao@claptop
+
+	ptt2 bbs template file.
+	Submitted By: in@amalea.org
+
+Change 259 on 2000/12/09 by autrijus@autricvic
+
+	crlf.
+
+Change 258 on 2000/12/08 by autrijus@autricvic
+
+	   mega submit for 1.4
+

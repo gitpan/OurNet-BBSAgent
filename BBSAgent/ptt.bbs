@@ -1,0 +1,5 @@
+PTT BBS
+ptt.csie.ntu.edu.tw:3003
+
+load maple2.board
+setv postsign 1

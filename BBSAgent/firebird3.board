@@ -1,0 +1,9 @@
+firebird3 bbs
+*
+
+load firebird2.board
+setv headl 0
+setv headr 0
+setv headi 0
+
+# ¥¼¼g§¹

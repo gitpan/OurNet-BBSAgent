@@ -1,0 +1,89 @@
+Maple2/SOB ONLY BOARD description
+*
+
+setv cursor	●
+setv morehead	m/\e\[0?m\e\[([\d;]+)m\x20\x20瀏覽\x20P./
+setv moretail	m/\[q\]\e\[30m結束\x20\x20\x20\e\[0?m/
+# 簽名檔在 post 後問
+setv postsign   0
+
+=login
+wait 註冊：
+send $[username]\n$[password]\nn\nq\x20q\x20q\x20q\x20q
+goto main
+
+=main
+send \e[D\e[D\e[D\e[D\e[D\e[D
+wait 主功能表
+till 扣機
+
+=logoff
+call main
+send g\ny\n\n\n\n
+
+# 假設在主選單及看板內, 都可以 select board
+=board
+send s
+wait 名稱
+send $[board]\n\x20\x20
+wait 板主：
+till 文章選讀
+
+# 假設看板文章超過一頁
+# XXX 其實現在是抓進板的游標位置, 只是 maple2 第一次進板, 游標會在最後一篇
+=board_list_last
+call board $[board]
+send 1\n\x24
+wait \x0d$[cursor]
+till /
+exit
+
+=board_article_fetch_first
+call board $[board]
+send $[article]\n\n
+till $[morehead]
+wait (
+till )
+wait $[moretail]
+exit
+
+=board_article_fetch_next
+send \x20
+till $[morehead]
+wait (
+till )
+wait $[moretail]
+exit
+
+=board_article_fetch_last
+send qq
+wait 文章選讀
+exit
+
+=article_post_raw
+call board $[board]
+send \x10$[title]\n
+doif $[postsign]
+else
+  send 0\n
+endo
+send $[body]
+# clean tailer (x-origin)
+send \x14\x19\x19\x19
+send \x18s\n
+doif $[postsign]
+  send 0\n
+endo
+send \x20
+#doif $[author]
+    call article_edit_author $[author]
+#endo
+exit
+
+=article_edit_author
+send \x24E\x19\x19\x19\x19
+# 1 empty 2 from 3 origin 4 --
+send \x14\x19\x19\x19\x19
+send \x18\n
+wait 文章選讀
+exit

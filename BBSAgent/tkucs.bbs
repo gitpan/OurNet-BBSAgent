@@ -1,0 +1,5 @@
+tkucs bbs
+bbs.cs.tku.edu.tw:23
+
+load firebird2.board
+setv statustail ±b¸¹:[

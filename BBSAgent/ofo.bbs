@@ -1,0 +1,33 @@
+OFO BBS
+ofo.twbbs.org:23
+
+setv headansi 1;43;33m
+setv headansiend 46;37m
+
+load maple2.board
+setv cursor	★
+setv morehead	m/\e\[([\d;]+)m\x20\x20瀏覽\x20P./
+setv moretail	\e[30m結束\x20\x20\e[0m
+
+=login
+wait 名稱
+send \n$[username]
+doif $[password]
+	send \n$[password]\nn\n\n\nqq\nqqq
+	goto main
+endo
+
+=main
+send eeeeeeee
+wait 主功能表
+till 通訊器
+
+# 注意: ofo 有時 post 到一半會跑 message box 出來!
+
+=article_edit_author
+send \x24E\x19\x19\x19\x19
+# 1 empty 2-4 from,origin 5 --
+send \x14\x19\x19\x19\x19\x19
+send \x18s\n\x20
+wait 文章選讀
+exit

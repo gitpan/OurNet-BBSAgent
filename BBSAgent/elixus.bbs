@@ -1,0 +1,12 @@
+Elixus BBS
+elixus.org:23
+
+load maple3.board
+
+=board
+call main
+send s\n
+wait 名稱
+send $[board]\n\x20\x20
+wait 板主：
+wait 文  章  標  題
