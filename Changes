@@ -1,4 +1,28 @@
 ____________________________________________________________________________
+[  1635] By: autrijus@autricvic                    on 2001/08/31 17:05:35
+	Log: * This be OurNet::BBS v1.57.
+	     * uses Test::Simple for testing.
+       Path: .
+	   ! Makefile.PL test.pl
+____________________________________________________________________________
+[  1634] By: autrijus@autricvic                    on 2001/08/31 17:05:12
+	Log: * POD updates and fixes
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1543] By: autrijus@autribsd                     on 2001/08/19 03:34:19
+	Log: * BBSAgent uses typed phash (for now).
+	     * add localhost bbs: melix.
+       Path: BBSAgent
+	   + melix.bbs
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1484] By: autrijus@autricvic                    on 2001/07/23 01:32:16
+	Log: * changes update
+       Path: .
+	   ! Changes
+____________________________________________________________________________
 [  1483] By: autrijus@autricvic                    on 2001/07/23 01:25:46
 	Log: * this be BBSAgent 1.56, maintenence release.
        Path: .

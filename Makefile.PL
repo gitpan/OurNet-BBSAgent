@@ -13,7 +13,8 @@ WriteMakefile(
     BINARY_LOCATION => 'x86/OurNet-BBSAgent.tar.gz',
 
     PREREQ_PM       => {
-	'Net::Telnet'  => '3.02',       # BBSAgent
+	'Net::Telnet'	=> '3.02',	# BBSAgent
+	'Test::Simple'	=> '0.01',	# test script
     },
 
     dist            => {
@@ -21,5 +22,3 @@ WriteMakefile(
 	SUFFIX      => '.gz',
     }
 );
-
-

@@ -1,10 +1,10 @@
 # $File: //depot/OurNet-BBSAgent/BBSAgent.pm $ $Author: autrijus $
-# $Revision: #19 $ $Change: 1483 $ $DateTime: 2001/07/23 01:25:46 $
+# $Revision: #21 $ $Change: 1634 $ $DateTime: 2001/08/31 17:05:12 $
 
 package OurNet::BBSAgent;
-require 5.005;
+use 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.56';
+$OurNet::BBSAgent::VERSION = '1.57';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -99,7 +99,7 @@ a site description file:
     exit
 
 The first two lines describes the service's title, its IP address and
-port number. Any number of 'procedures' then begins with C<=procname>,
+port number. Any number of I<procedures> then begins with C<=procname>,
 which could be called like C<$object-E<gt>procname([arguments])> in the
 program. 
 
@@ -111,11 +111,12 @@ All procedures are consisted of following directives:
 
 This directive must be used before any procedures. It loads another
 BBS definition file under the same directory (or current directory).
-If the FILENAME contains extentions other than C<.bbs> (e.g. C<.board>,
+
+If the FILENAME has an extentions other than C<.bbs> (eg. C<.board>,
 C<.session>), BBSAgent will try to locate additional modules by 
 expanding C<.> into C</>, and look for the required module with an
 C<.inc> extention. For example, C<load maple3.board> will look for
-<maple3/board.inc> in the same directory.  
+C<maple3/board.inc> in the same directory.  
 
 =item wait STRING
 
@@ -123,11 +124,11 @@ C<.inc> extention. For example, C<load maple3.board> will look for
 
 =item   or STRING
 
-Tells the agent to wait until STRING is sent by remote host. Might time
-out after C<$self-E<gt>{timeout}> seconds. Any trailing C<or> directives
+Tells the agent to wait until STRING is sent by remote host. May time
+out after C<$self-E<gt>{timeout}> seconds. Each trailing C<or> directives
 specifies an alternative string to match.
 
-If STRING is of format C<m/.*/[imsx]*>, it will be treated as a regular
+If STRING matches the regex C<m/.*/[imsx]*>, it will be treated as a regular
 expression. Capturing parentheses are silently ignored.
 
 The C<till> directive is functionally equivalent to C<wait>, except that
@@ -154,13 +155,13 @@ The usual flow control directives. Nested C<doif...endo>s are supported.
 
 Executes another procedure in the site description file. A C<goto> never
 returns, while a C<call> always will. Also, a C<call> will not occur if
-the destination was the last executed procedure that does not end with
+the destination was the last executed procedure, which does not end with
 C<exit>.
 
 =item exit
 
-Marks the termination of a procedure; also means this procedure is not
-a 'state' - that is, multiple C<call>s to it will all be executed.
+Marks the termination of a procedure; also denotes that this procedure is
+not a I<state> - that is, multiple C<call>s to it will all be executed.
 
 =item setv VAR STRING
 
@@ -175,7 +176,7 @@ Sleep that much seconds.
 =head2 Variable Handling
 
 Whenever a variable in the form of $[name] is encountered as part 
-of a directive, it will be looked up in the global 'setv' hash 
+of a directive, it will be looked up in the global C<setv> hash 
 C<$self-E<gt>{var}> first, then at the procedure-scoped variable hash, 
 then finally C<shift()>ed from the argument list if none are found.
 
@@ -184,15 +185,17 @@ For example:
     setv foo World!
 
     =login
-    send $[bar]      # sends the first argument
-    send $[foo]      # sends 'World!'
-    send $[password] # sends the second argument
-    send $[username] # sends the first argument again
+    send $[bar] # sends the first argument
+    send $[foo] # sends 'World!'
+    send $[baz] # sends the second argument
+    send $[bar] # sends the first argument again
 
-A notable exception are digits-only subscripts (e.g. $[1]), which contains
-the matched string in the previous 'wait' or 'till' directive. If there
-are multiple strings via 'or' directives, the subscript correspond to the
-matched alternative. For example:
+A notable exception are digits-only subscripts (e.g. C<$[1]>), which
+contains the matched string in the previous C<wait> or C<till> directive.
+If there are multiple strings via C<or> directives, the subscript correspond
+to the matched alternative.
+
+For example:
 
     =match
     wait foo
@@ -205,16 +208,16 @@ matched alternative. For example:
 
 =head2 Event Hooks
 
-In addition to call the procedures one-by-one, you can 'hook' those
-that begins with 'wait' (or 'call' and 'wait') so whenever the strings
-they expected are received, the responsible procedure is immediately
-called. You can also supply a call-back function to handle its results.
+In addition to call the procedures one-by-one, you can C<Hook> those
+that begins with C<wait> (optionally preceded by C<call>) so whenever
+the strings they expected are received, the responsible procedure is
+immediately called. You may also supply a call-back function to handle
+its results.
 
-For example, the code in L<SYNOPSIS> above 'hooks' a callback function
-to procedure 'message', then enters a event loop by calling C<Loop>.
-
-A loop never terminates except when the agent receives '!quit' via the
-message procedure.
+For example, the code in L<SYNOPSIS> above I<hooks> a callback function
+to procedure C<message>, then enters a event loop by calling C<Loop>, 
+which goes on forever until the agent receives C<!quit> via the C<message>
+procedure.
 
 The internal hook table could be accessed by C<$obj-E<gt>{hook}>.
 
@@ -231,7 +234,7 @@ use fields qw/bbsname bbsaddr bbsport bbsfile lastmatch loadstack
 # --------------------------------------------
 sub new {
     my $class = shift;
-    my $self  = ($] > 5.00562) 
+    my OurNet::BBSAgent $self = ($] > 5.00562) 
 	? fields::new($class) 
 	: do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
 

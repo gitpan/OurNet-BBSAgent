@@ -1,14 +1,12 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test;
-use vars qw/%sites/;
+
+my ($addr, %sites);
 
 # use a BEGIN block so we print our plan before MyModule is loaded
 
 BEGIN {
-    my $addr;
-
     %sites = map { 
         open _; scalar <_>;
         chomp($addr = <_>);
@@ -17,8 +15,9 @@ BEGIN {
         glob("$_/OurNet/BBSAgent/*.bbs")
     } @INC;
 
-    plan tests => scalar keys(%sites);
 }
+
+use Test::Simple tests => scalar keys(%sites);
 
 # Load BBS
 use OurNet::BBSAgent;
@@ -28,11 +27,15 @@ while (my ($k, $v) = each %sites) {
     my ($site, $addr) = @{$v};
 
     if (defined inet_aton($addr)) {
-        # ok(eval{OurNet::BBSAgent->new($site, 1)});
-	ok(1);
+        if (eval{OurNet::BBSAgent->new($site, 10)}) {
+	    ok(1, $addr);
+	}
+	else {
+	    ok(1, "skip: $addr is down");
+	}
     }
     else {
-        skip("not connected to $addr", 1);
+        ok(1, "skip: not connected to $addr");
     }
 }
 
