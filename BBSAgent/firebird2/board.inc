@@ -1,3 +1,7 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/firebird2/board.inc $ $Author: autrijus $
+# $Revision: #5 $ $Change: 2895 $ $DateTime: 2002/01/17 06:37:53 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+
 Firebird2 Board
 
 load firebird2.base
@@ -5,6 +9,7 @@ load firebird2.base
 setv headl \x0d?
 setv headr :\x20(.+?)(?:,\x20信區:\x20.+)?$
 setv headi 發信人,標\x20\x20題,發信站
+setv escape \e\e
 setv separator \e\[\\d;1H
 
 setv bottom 時間
@@ -54,6 +59,7 @@ exit
 call board $[board]
 send \x10$[title]\n\n
 send $[body]
-send \x18s\n
+send \cX
+send s\n
 send \x20
 exit

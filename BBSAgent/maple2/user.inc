@@ -1,3 +1,7 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/maple2/user.inc $ $Author: autrijus $
+# $Revision: #2 $ $Change: 2217 $ $DateTime: 2001/10/27 06:03:10 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+
 Maple2/SOB User
 
 load maple2.base

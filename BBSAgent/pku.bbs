@@ -1,5 +1,10 @@
-Beijing University Weiming BBS
-bbs.pku.edu.cn:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/pku.bbs $ $Author: autrijus $
+# $Revision: #5 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Chia-liang Kao <clkao@clkao.org>
+# zh_TW.Big5: ¥_¨Ê¤j¾Ç
+
+Beijing University
+bbs.pku.edu.cn
 
 load firebird2.board
 

@@ -1,5 +1,10 @@
-SUMMER BBS
-summer.ck.tp.edu.tw:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/summer.bbs $ $Author: autrijus $
+# $Revision: #4 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: «Ø¤¤¯Q¾|¤ì»ô
+
+Chien-Kuo High School
+summer.ck.tp.edu.tw
 
 load maple2.board
 setv moretail	m/\[q\]\e\[30mµ²§ô\x20\x20\e\[0?m/

@@ -1,5 +1,10 @@
-TWSERV BBS
-tw.twbbs.org:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/twserv.bbs $ $Author: autrijus $
+# $Revision: #4 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Chia-liang Kao <clkao@clkao.org>
+# zh_TW.Big5: 台灣文化資訊站
+
+TWServ
+tw.twbbs.org
 
 setv headansi 1;32;40m
 setv headansiend 33m

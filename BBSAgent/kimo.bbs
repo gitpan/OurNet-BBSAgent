@@ -1,4 +1,9 @@
-kimo bbs
+# $File: //depot/OurNet-BBSAgent/BBSAgent/kimo.bbs $ $Author: autrijus $
+# $Revision: #3 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: Yahoo!©_¼¯¤j¼¯°ì
+
+Yahoo! Kimo
 bbs.kimo.com.tw
 
 setv headansi 1;32;40m

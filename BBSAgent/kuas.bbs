@@ -1,5 +1,10 @@
-kuas bbs
-bbs.kuas.edu.tw:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/kuas.bbs $ $Author: autrijus $
+# $Revision: #6 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Chihchun <kalug@kalug.ks.edu.tw>
+# zh_TW.Big5: 高雄應用科技大學
+
+Kaohsiung University of Applied Science
+bbs.kuas.edu.tw
 
 load firebird2.base
 

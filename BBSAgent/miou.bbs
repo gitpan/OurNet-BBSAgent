@@ -1,4 +1,9 @@
-miou bbs
+# $File: //depot/OurNet-BBSAgent/BBSAgent/miou.bbs $ $Author: autrijus $
+# $Revision: #7 $ $Change: 2830 $ $DateTime: 2002/01/10 15:15:44 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: ¿ß«}¼Ö¶é
+
+Miou
 miou.mat.ncku.edu.tw
 
 load maple2.board

@@ -1,7 +1,14 @@
-kkcity bbs
+# $File: //depot/OurNet-BBSAgent/BBSAgent/kkcity.bbs $ $Author: autrijus $
+# $Revision: #10 $ $Change: 2895 $ $DateTime: 2002/01/17 06:37:53 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: KKCity
+
+KK City
 bbs.kkcity.com.tw
 
 load maple3.board
+load maple3.session
+load maple3.user
 setv separator \x0d\e\[36m(?:─)+.*\x20\x20\e\[m\e\[\d+;1H
 
 =login
@@ -67,4 +74,15 @@ send \x24En\n\x19\x19\x19\x19
 send \x14\x19\x19\x19\x19
 send \x18s\n
 wait 文章選讀
+exit
+
+=message_reply
+send \x12
+wait 回覆訊息:
+send $[message]\n
+wait [Y]
+send \n 
+wait \e[37;45m
+wait \e[m
+send h\x20\x20\x20\x20\x20\x20
 exit

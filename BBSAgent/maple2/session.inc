@@ -1,3 +1,7 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/maple2/session.inc $ $Author: autrijus $
+# $Revision: #7 $ $Change: 2217 $ $DateTime: 2001/10/27 06:03:10 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+
 Maple2/SOB Session
 
 load maple2.base

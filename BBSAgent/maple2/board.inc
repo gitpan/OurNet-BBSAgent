@@ -1,3 +1,7 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/maple2/board.inc $ $Author: autrijus $
+# $Revision: #10 $ $Change: 2899 $ $DateTime: 2002/01/17 22:20:11 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+
 Maple2/SOB Board
 
 load maple2.base
@@ -6,6 +10,9 @@ setv cursor	●
 setv morehead	m/\e\[0?m\e\[(?:[\d;]+)m\x20\x20瀏覽\x20P./
 setv moretail	m/\[q\]\e\[30m結束\x20\x20\x20\e\[0?m/
 setv postsign	0 # 簽名檔在 post 後問
+setv escape	\cU
+setv leftparen	(
+setv rightparen	)
 
 # 假設在主選單及看板內, 都可以 select board
 =board
@@ -28,16 +35,16 @@ call board $[board]
 send $[article]\n\n
 wait m/\e\[2?J/
 till $[morehead]
-wait (
-till )
+wait $[leftparen]
+till $[rightparen]
 wait $[moretail]
 exit
 
 =board_article_fetch_next
 send \x20
 till $[morehead]
-wait (
-till )
+wait $[leftparen]
+till $[rightparen]
 wait $[moretail]
 exit
 
@@ -55,15 +62,20 @@ exit
 
 =article_post_raw
 call board $[board]
-send \x10$[title]\n
+send \cP$[title]\n
 doif $[postsign]
 else
   send 0\n
 endo
 send $[body]
-# clean tailer (x-origin)
-# send \x14\x19\x19\x19 # delete by fascist autrijus
-send \x18s\n
+#send \e,\cY\cY\cY\cY
+send \cX
+send \cXs\n
+wait (E)繼續編輯 (W)強制寫入？[E]
+  or \e[m
+doif $[1]
+    send w\n
+endo
 doif $[postsign]
   send 0\n
 endo
@@ -74,10 +86,9 @@ endo # ?
 exit
 
 =article_edit_author
-send \x24E\x19\x19\x19\x19
+send \x24E\cY\cY\cY\cY
 # 1 empty 2 from 3 origin 4 --
-send \x14\x19\x19
-send \x18\n
+send \cXs\n
 wait 文章選讀
 exit
 

@@ -1,5 +1,10 @@
-neto world
-netoworld.twbbs.org.tw:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/neto.bbs $ $Author: autrijus $
+# $Revision: #7 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: 網際新世界
+
+Neto World
+netoworld.twbbs.org
 
 load maple2.board
 setv moretail	m/\[q\]\e\[30m結束\x20\x20\e\[0?m/

@@ -1,5 +1,10 @@
-OFO BBS
-ofo.twbbs.org:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/ofo.bbs $ $Author: autrijus $
+# $Revision: #6 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Vgod <vgod@kimo.com.tw>
+# zh_TW.Big5: 未來最舊小棧
+
+Oldest Future Object
+ofo.twbbs.org
 
 setv headansi 1;43;33m
 setv headansiend 46;37m

@@ -1,6 +1,9 @@
 #!/usr/bin/perl
+# $File: //depot/libOurNet/BBSAgent/Makefile.PL $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3673 $ $DateTime: 2003/01/20 01:51:29 $
 
-require 5.005;
+use 5.005;
+use strict;
 
 use ExtUtils::MakeMaker;
 
@@ -11,12 +14,10 @@ WriteMakefile(
     VERSION_FROM    => 'BBSAgent.pm',
     DISTNAME        => 'OurNet-BBSAgent',
     BINARY_LOCATION => 'x86/OurNet-BBSAgent.tar.gz',
-
-    PREREQ_PM       => {
+    PREREQ_PM	    => {
 	'Net::Telnet'	=> '3.02',	# BBSAgent
-	'Test::Simple'	=> '0.01',	# test script
+	'Test::More'	=> '0.32',	# test script
     },
-
     dist            => {
 	COMPRESS    => 'gzip',
 	SUFFIX      => '.gz',

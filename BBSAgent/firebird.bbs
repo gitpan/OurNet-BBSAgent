@@ -1,5 +1,10 @@
-Firebird BBS
-bbs.cs.ccu.edu.tw:23
+# $File: //depot/OurNet-BBSAgent/BBSAgent/firebird.bbs $ $Author: autrijus $
+# $Revision: #5 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Whiteg <whiteg@elixus.org>
+# zh_TW.Big5: 中正資工四百年來第一站
+
+Firebird
+bbs.cs.ccu.edu.tw
 
 load firebird2.board
 

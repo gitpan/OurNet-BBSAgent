@@ -1,4 +1,9 @@
-Tiger2 BBS
+# $File: //depot/OurNet-BBSAgent/BBSAgent/tiger2.bbs $ $Author: autrijus $
+# $Revision: #5 $ $Change: 2829 $ $DateTime: 2002/01/10 14:54:36 $
+# Contributed by Autrijus Tang <autrijus@autrijus.org>
+# zh_TW.Big5: ªê¤G¯¸
+
+Tiger2
 bbs.tiger2.net
 
 load maple3.board

@@ -1,3 +1,6 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/melix/session.inc $ $Author: autrijus $
+# $Revision: #5 $ $Change: 2809 $ $DateTime: 2002/01/08 21:44:45 $
+
 Melix Session
 
 load melix.base
@@ -12,7 +15,6 @@ exit
 =message_reply
 send \x12
 wait \e[m
-wait \e[23;1H
 send $[message]\n
 wait [Y]
 send \n

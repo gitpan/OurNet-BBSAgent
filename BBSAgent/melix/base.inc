@@ -1,3 +1,6 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/melix/base.inc $ $Author: autrijus $
+# $Revision: #6 $ $Change: 2765 $ $DateTime: 2002/01/06 00:30:18 $
+
 Melix Base
 
 =login
@@ -8,7 +11,7 @@ doif $[password]
     send $[password]\nn\n
 endo
 # login failure, unsaved article, kick multi-logins
-send \n\n\n
+send \n\n
 # skips splash screens (if any)
 send \x20\x20\x20
 

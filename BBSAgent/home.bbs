@@ -1,5 +1,10 @@
-Home BBS
-home.cvic.org:23
+# $File: //depot/libOurNet/BBSAgent/BBSAgent/home.bbs $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3675 $ $DateTime: 2003/01/20 02:00:09 $
+# Contributed by Autrijus Tang <autrijus@autrijus.org>
+# zh_TW.Big5: 網路展望會
+
+Cyber Vision
+210.59.231.49
 
 load maple2.board
 

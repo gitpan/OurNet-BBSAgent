@@ -1,3 +1,6 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/maple3/user.inc $ $Author: autrijus $
+# $Revision: #3 $ $Change: 2217 $ $DateTime: 2001/10/27 06:03:10 $
+
 Maple3 User
 
 load maple3.base

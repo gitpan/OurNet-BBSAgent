@@ -1,3 +1,6 @@
+# $File: //depot/OurNet-BBSAgent/BBSAgent/melix/user.inc $ $Author: autrijus $
+# $Revision: #3 $ $Change: 2217 $ $DateTime: 2001/10/27 06:03:10 $
+
 Melix User
 
 load melix.base

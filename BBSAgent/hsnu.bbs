@@ -1,5 +1,10 @@
-hsnu bbs
-hsnu.twbbs.org.tw
+# $File: //depot/OurNet-BBSAgent/BBSAgent/hsnu.bbs $ $Author: autrijus $
+# $Revision: #6 $ $Change: 2830 $ $DateTime: 2002/01/10 15:15:44 $
+# Contributed by Smartboy <kcwu@ck.tp.edu.tw>
+# zh_TW.Big5: ®v¤jªþ¤¤
+
+Affiliated Senior High School of Taiwan Normal University 
+hsnu.twbbs.org
 
 setv headansi 1;42;33m
 setv headansiend 44;37m

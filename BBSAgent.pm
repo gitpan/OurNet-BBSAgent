@@ -1,13 +1,16 @@
-# $File: //depot/OurNet-BBSAgent/BBSAgent.pm $ $Author: autrijus $
-# $Revision: #27 $ $Change: 1980 $ $DateTime: 2001/10/06 17:34:01 $
+# $File: //depot/libOurNet/BBSAgent/BBSAgent.pm $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3674 $ $DateTime: 2003/01/20 01:51:45 $
 
 package OurNet::BBSAgent;
 use 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.58';
+$OurNet::BBSAgent::VERSION = '1.60';
 
 use strict;
 use vars qw/$AUTOLOAD/;
+use fields qw/bbsname bbsaddr bbsport bbsfile lastmatch loadstack
+              debug timeout state proc var netobj hook loop errmsg/;
+use Carp;
 use Net::Telnet;
 
 =head1 NAME
@@ -23,44 +26,49 @@ OurNet::BBSAgent - Scriptable telnet-based virtual users
     use strict;
     use OurNet::BBSAgent;
 
-    my $remote  = 'elixus.bbs';
-    my $timeout = undef; # no timeout
-    my $logfile = 'elixus.log';
-    my $bbs = OurNet::BBSAgent->new($remote, $timeout, $logfile);
+    my $remote  = 'elixus.bbs';		# template name
+    my $timeout = undef;		# no timeout
+    my $logfile = 'elixus.log';		# log file
+    my $bbs	= OurNet::BBSAgent->new($remote, $timeout, $logfile);
 
-    $bbs->{debug} = 1; # set to 0 if you want to disable debugging
-    $bbs->login($ARGV[0] || 'guest', $ARGV[1]); # username and password
+    my ($user, $pass) = @ARGV;
+    $user = 'guest' unless defined($user);
 
-    # randomly decides between two (equivalent) syntaxes...
-    if (int(rand(2))) {
-	# procedural interface
-	callback($bbs->message) while 1; 
-    }
-    else {
-	# callback-based interface
-	$bbs->Hook('message', \&callback); 
-	$bbs->Loop;
-    }
+    $bbs->{debug} = 1;			# debugging flag
+    $bbs->login($user, $pass);		# username and password
+
+    # callback($bbs->message) while 1;	# procedural interface
+
+    $bbs->Hook('message', \&callback);	# callback-based interface
+    $bbs->Loop(undef, 10);		# loop indefinitely, send Ctrl-L
+					# every 10 seconds (anti-idle)
 
     sub callback {
 	my ($caller, $message) = @_;
 
 	print "Received: $message\n";
 
-	$bbs->logoff and exit if ($message eq '!quit');
+	($bbs->logoff, exit) if ($message eq '!quit');
 	$bbs->message_reply("$caller: $message");
     }
 
 =head1 DESCRIPTION
 
 OurNet::BBSAgent provides an object-oriented interface to TCP/IP
-based interactive services (e.g. BBS, IRC, ICQ and Telnet), by 
-simulating as a I<virtual user> with action defined by a script 
-language. 
+based interactive services, by simulating as a I<virtual user>
+with action defined by a script language. 
 
 The developer could then use the same methods to access different 
 services, to easily implement interactive robots, spiders, or other 
 cross-service agents.
+
+The scripting language of B<OurNet::BBSAgent> features both
+flow-control and event-driven capabilities, makes it especially
+well-suited for dealing with automation tasks involved with
+Telnet-based BBS systems.
+
+This module is the foundation of the B<BBSAgent> back-end described
+in L<OurNet::BBS>. Please consult its man page for more information.
 
 =head2 Site Description File
 
@@ -111,9 +119,11 @@ a site description file:
     exit
 
 The first two lines describe the service's title, its IP address and
-port number. Any number of I<procedures> then begins with C<=procname>,
-which could be called like C<$object-E<gt>procname([arguments])> in the
-program. 
+port number. Any number of I<procedures> then begins with a C<=> sign
+(e.g. =B<procname>), which could be called as
+C<$object>-E<gt>C<procname>([I<arguments>]) in the program. 
+
+=head2 Directives
 
 All procedures are consisted of following directives:
 
@@ -124,10 +134,10 @@ All procedures are consisted of following directives:
 This directive must be used before any procedures. It loads another
 BBS definition file under the same directory (or current directory).
 
-If the I<FILENAME> has an extention other than C<.bbs> (eg. C<.board>,
+If the I<FILENAME> has an extension other than C<.bbs> (eg. C<.board>,
 C<.session>), BBSAgent will try to locate additional modules by 
 expanding C<.> into C</>, and look for the required module with an
-C<.inc> extention. For example, C<load maple3.board> will look for
+C<.inc> extension. For example, B<load> C<maple3.board> will look for
 C<maple3/board.inc> in the same directory.  
 
 =item wait I<STRING>
@@ -137,14 +147,14 @@ C<maple3/board.inc> in the same directory.
 =item   or I<STRING>
 
 Tells the agent to wait until STRING is sent by remote host. May time
-out after C<$self-E<gt>{timeout}> seconds. Each trailing C<or> directives
+out after C<$self>-E<gt>C<{timeout}> seconds. Each trailing B<or> directives
 specifies an alternative string to match.
 
 If STRING matches the regex C<m/.*/[imsx]*>, it will be treated as a regular
 expression. Capturing parentheses are silently ignored.
 
-The C<till> directive is functionally equivalent to C<wait>, except that
-it will puts anything between the last C<wait> or C<till> and STRING 
+The B<till> directive is functionally equivalent to B<wait>, except that
+it will puts anything between the last B<wait> or B<till> and STRING 
 into the return list.
 
 =item send I<STRING>
@@ -159,21 +169,21 @@ Sends STRING to remote host.
 
 =item endo
 
-The usual flow control directives. Nested C<doif...endo>s are supported.
+The usual flow control directives. Nested B<doif>...B<endo>s are supported.
 
 =item goto I<PROCEDURE>
 
 =item call I<PROCEDURE>
 
-Executes another procedure in the site description file. A C<goto> never
-returns, while a C<call> always will. Also, a C<call> will not occur if
+Executes another procedure in the site description file. A B<goto> never
+returns, while a B<call> always does. Also, a B<call> will not occur if
 the destination was the last executed procedure, which does not end with
-C<exit>.
+B<exit>.
 
 =item exit
 
 Marks the termination of a procedure; also denotes that this procedure is
-not a I<state> - that is, multiple C<call>s to it will all be executed.
+not a I<state> - that is, multiple B<call>s to it will all be executed.
 
 =item setv I<VAR> I<STRING>
 
@@ -188,9 +198,9 @@ Sleep that much seconds.
 =head2 Variable Handling
 
 Whenever a variable in the form of $[name] is encountered as part 
-of a directive, it will be looked up in the global C<setv> hash 
-C<$self-E<gt>{var}> first, then at the procedure-scoped variable hash, 
-then finally C<shift()>ed from the argument list if none are found.
+of a directive, it will be looked up in the global B<setv> hash 
+B<$self-E<gt>{var}> first, then at the procedure-scoped variable hash, 
+then finally B<shift()>ed from the argument list if none are found.
 
 For example:
 
@@ -202,9 +212,9 @@ For example:
     send $[baz] # sends the second argument
     send $[bar] # sends the first argument again
 
-A notable exception are digits-only subscripts (e.g. C<$[1]>), which
-contains the matched string in the previous C<wait> or C<till> directive.
-If there are multiple strings via C<or> directives, the subscript correspond
+A notable exception are digits-only subscripts (e.g. B<$[1]>), which
+contains the matched string in the previous B<wait> or B<till> directive.
+If there are multiple strings via B<or> directives, the subscript correspond
 to the matched alternative.
 
 For example:
@@ -220,30 +230,33 @@ For example:
 
 =head2 Event Hooks
 
-In addition to call the procedures one-by-one, you can C<Hook> those
-that begins with C<wait> (optionally preceded by C<call>) so whenever
+In addition to call the procedures one-by-one, you can B<Hook> those
+that begins with B<wait> (optionally preceded by B<call>) so whenever
 the strings they expected are received, the responsible procedure is
 immediately called. You may also supply a call-back function to handle
 its results.
 
 For example, the code in L</SYNOPSIS> above I<hooks> a callback function
-to procedure C<message>, then enters a event loop by calling C<Loop>, 
+to procedure B<message>, then enters a event loop by calling B<Loop>, 
 which goes on forever until the agent receives C<!quit> via the C<message>
 procedure.
 
-The internal hook table could be accessed by C<$obj-E<gt>{hook}>.
+The internal hook table could be accessed by C<$obj>-E<gt>C<{hook}>.
+
+=head1 METHODS
+
+Following methods are offered by B<OurNet::BBSAgent>:
+
+=head2 new($class, $bbsfile, [$timeout], [$logfile])
+
+Constructor class method. Takes the BBS description file's name and 
+two optional arguments, and returns a B<OurNet::BBSAgent> object.
+
+If no files are found at C<$bbsfile>, the method will try to locate
+it on the B<OurNet/BBSAgent> sub-directory of each @INC entries.
 
 =cut
 
-# ---------------
-# Variable Fields
-# ---------------
-use fields qw/bbsname bbsaddr bbsport bbsfile lastmatch loadstack
-              debug timeout state proc var netobj hook loop errmsg/;
-
-# --------------------------------------------
-# Subroutine new($bbsfile, $timeout, $logfile)
-# --------------------------------------------
 sub new {
     my $class = shift;
     my OurNet::BBSAgent $self = ($] > 5.00562) 
@@ -251,24 +264,24 @@ sub new {
 	: do { no strict 'refs'; bless [\%{"$class\::FIELDS"}], $class };
 
     $self->{bbsfile} = shift
-	or die('You need to specify the bbs definition file');
+	or croak('You need to specify the bbs definition file');
 
     $self->{timeout} = shift;
 
-    die("Cannot find bbs definition file: $self->{bbsfile}")
+    croak("Cannot find bbs definition file: $self->{bbsfile}")
         unless -f ($self->{bbsfile} = _locate($self->{bbsfile}));
 
     open(local *_FILE, $self->{bbsfile});
 
-    chomp($self->{bbsname} = <_FILE>);
-    chomp(my $addr = <_FILE>);
+    $self->{bbsname} = _readline(\*_FILE);
+    $self->{bbsaddr} = _readline(\*_FILE);
 
-    if ($addr =~ /^(.*?)(:\d+)?\r?$/) {
+    if ($self->{bbsaddr} =~ /^(.*?)(:\d+)?\r?$/) {
         $self->{bbsaddr} = $1;
         $self->{bbsport} = $2 ? substr($2, 1) : 23;
     }
     else {
-        die("Malformed location line: $addr");
+        croak("Malformed location line: $self->{bbsaddr}");
     }
 
     close *_FILE;
@@ -301,6 +314,7 @@ sub _locate {
 	
     foreach my $path (map { $_, "$_/$pkg" } ('.', @INC)) {
         return "$path/$file" if -f "$path/$file";
+        return "$path/$file.bbs" if -f "$path/$file.bbs";
     }
 }
 
@@ -312,24 +326,43 @@ sub _plain {
     return $str;
 }
 
+=head2 loadfile($self, $bbsfile, [$path])
+
+Reads in a BBS description file, parse its contents, and return
+the object itself. The optional C<$path> argument may be used
+to specify a root directory where files included by the B<load>
+directive should be found.
+
+=cut
+
+sub _readline {
+    my $fh = shift; my $line;
+
+    while ($line = readline(*{$fh})) {
+        last unless $line =~ /^#|^\s*$/;
+    }
+
+    $line =~ s/\r?\n?$// if defined($line);
+
+    return $line;
+}
+
 sub loadfile {
     my ($self, $bbsfile, $path) = @_;
 
-    return if $self->{loadstack}{$bbsfile}++; # recursion prevention
+    return if $self->{loadstack}{$bbsfile}++; # prevents recursion
 
     $bbsfile =~ tr|\\|/|;
     $path ||= substr($bbsfile, 0, rindex($bbsfile, '/') + 1);
 
-    open(local *_FILE, $bbsfile)
-	or die "cannot find file: $bbsfile";
+    open(local *_FILE, $bbsfile) or croak "cannot find file: $bbsfile";
 
-    <_FILE>; <_FILE>; # skip headers
+    # skips headers
+    _readline(\*_FILE);
+    _readline(\*_FILE) if $bbsfile =~ /\.bbs$/i;
 
-    while (my $line = <_FILE>) {
-    	$line =~ s/\r$//; # unix brain damage
-
-        next if $line =~ /^#|^[\s\t]*$/;
-        $line =~ s/[\s\t]+\#[\s\t]+.+$//;
+    while (my $line = _readline(\*_FILE)) {
+        $line =~ s/\s+(?:\#\s+.+)?$//;
 
         if ($line =~ /^=(\w+)$/) {
             $self->{state}    = $1;
@@ -338,7 +371,7 @@ sub loadfile {
         elsif (
 	    $line =~ /^\s*(
 		idle|load|doif|endo|goto|call|wait|send|else|till|setv|exit
-	    )[\s\t]*(.*)$/x
+	    )\s*(.*)$/x
 	) {
             if (!$self->{state}) {
                 # directives must belong to procedures...
@@ -349,18 +382,20 @@ sub loadfile {
                     $val =~ s/\x5c\x5c/_!!!_/g;
                     $val =~ s/\\n/\015\012/g;
                     $val =~ s/\\e/\e/g;
+		    #$val =~ s/\\c./qq("$&")/eeg; 
+		    $val =~ s/\\c(.)/"$1" & "\x1F"/eg;
                     $val =~ s/\\x([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
                     $val =~ s/_!!!_/\x5c/g;
 
                     $val =~ s{\$\[([^\]]+)\]}{
                          (exists $self->{var}{$1})
 			    ? $self->{var}{$1} 
-			    : die("variable $1 not defined")
+			    : croak("variable $1 not defined")
                     }e;
 
                     $self->{var}{$var} = $val;
                 }
-                elsif ($1 eq 'load') { # ...but 'load' is another exception.
+                elsif ($1 eq 'load') { # ...and 'load' is another exception.
 		    my $file = $2;
 
 		    if ($file !~ /\.bbs$/) {
@@ -369,61 +404,45 @@ sub loadfile {
 			$file =~ s|^(\w+)/\1/|$1/|;
 		    }
 
-		    die "cannot read file: $file" unless -e $file;
+		    croak("cannot read file: $file") unless -e $file;
 
                     $self->loadfile($file, $path);
 
                     $self->{state} = '';
                 }
                 else {
-                    die("Not in a procedure: $line");
+                    croak("Not in a procedure: $line");
                 }
             }
             push @{$self->{proc}{$self->{state} || ''}}, $1, $2;
         }
         elsif ($line =~ /^\s*or\s*(.+)$/) {
-            die('Not in a procedure') unless $self->{state};
-            die('"or" directive not after a "wait" or "till"')
+            croak('Not in a procedure') unless $self->{state};
+            croak('"or" directive not after a "wait" or "till"')
                 unless $self->{proc}{$self->{state}}->[-2] eq 'wait'
                     or $self->{proc}{$self->{state}}->[-2] eq 'till';
 
             ${$self->{proc}{$self->{state}}}[-1] .= "\n$1";
         }
         else {
-            warn("Error parsing '$line'");
+            carp("Error parsing '$line'");
         }
     }
 
+    return $self;
 }
 
-# ---------------------------------------
-# Subroutine Unhook($self, $procedure)
-# ---------------------------------------
-# Unhooks the procedure from event table.
-# ---------------------------------------
-sub Unhook {
-    my ($self, $sub) = @_;
 
-    if (exists $self->{proc}{$sub}) {
-        my ($state, %var);
-        my @proc = @{$self->{proc}{$sub}};
+=head2 Hook($self, $procedure, [\&callback], [@args])
 
-        $state = $self->_chophook(\@proc, \%var, \@_);
+Adds a procedure to the trigger table, with an optional callback
+function and parameters on invoking that procedure.
 
-        print "Unhook $sub\n" if $self->{debug};
-        delete $self->{hook}{$state}{$sub};
-    }
-    else {
-        die "Unhook: undefined procedure '$sub'";
-    }
-}
+If specified, the callback function will be invoked after the
+hooked procedure's execution, using its return value as arguments.
 
-# -----------------------------------------------------------
-# Subroutine Unhook($self, $procedure, [\&callback], [@args])
-# -----------------------------------------------------------
-# Adds a procedure from event table, with optional callback
-# functions and procedure parameters.
-# -----------------------------------------------------------
+=cut
+
 sub Hook {
     my ($self, $sub, $callback) = splice(@_, 0, 3);
 
@@ -438,36 +457,74 @@ sub Hook {
         $self->{hook}{$state}{$sub} = [$sub, $wait, $callback, @_];
     }
     else {
-        die "Hook: Undefined procedure '$sub'";
+        croak "Hook: Undefined procedure '$sub'";
     }
 }
 
-# -------------------------------------------------------------
-# Subroutine Loop($self, [$timeout])
-# -------------------------------------------------------------
-# Loops for $timeout seconds, or indefinitely if not specified.
-# -------------------------------------------------------------
-sub Loop {
-    my ($self, $timeout) = @_;
+=head2 Unhook($self, $procedure)
 
-    do {
-        $self->Expect(undef, defined $timeout ? $timeout : -1);
-    } until (defined $timeout);
+Unhooks the procedure from event table. Raises an error if the
+specified procedure did not exist.
+
+=cut
+
+sub Unhook {
+    my ($self, $sub) = @_;
+
+    if (exists $self->{proc}{$sub}) {
+        my ($state, %var);
+        my @proc = @{$self->{proc}{$sub}};
+
+        $state = $self->_chophook(\@proc, \%var, \@_);
+
+        print "Unhook $sub\n" if $self->{debug};
+        delete $self->{hook}{$state}{$sub};
+    }
+    else {
+        croak "Unhook: undefined procedure '$sub'";
+    }
 }
 
-# --------------------------------------------------------------
-# Subroutine Expect($self, [$string], [$timeout])
-# --------------------------------------------------------------
-# Implements the 'wait' and 'till' directive depends on context.
-# Note multiple strings could be specified in one $string by
-# using \n as delimiter.
-# --------------------------------------------------------------
+=head2 Loop($self, [$timeout], [$refresh])
+
+Causes a B<Expect> loop to be executed for C<$timeout> seconds, or
+indefinitely if not specified. If the C<$refresh> argument is
+specified, B<BBSAgent> will send out a Ctrl-L (C<\cL>) upon entering
+the loop, and then every C<$refresh> seconds during the Loop.
+
+=cut
+
+sub Loop {
+    my ($self, $timeout, $refresh) = @_;
+    my $time = time;
+
+    $self->{netobj}->send("\cL") if $refresh;
+
+    do {
+        $self->Expect(
+	    undef, defined $refresh ? $refresh :
+		   defined $timeout ? $timeout : -1
+	);
+	$self->{netobj}->send("\cL") if $refresh;
+    } until (defined $timeout and time - $time < $timeout);
+}
+
+=head2 Expect($self, [$string], [$timeout])
+
+Implements the B<wait> and B<till> directives; all hooked procedures
+are also checked in parallel.
+
+Note that multiple strings could be specified in one C<$string> by
+using \n as the delimiter.
+
+=cut
+
 sub Expect {
     my ($self, $param, $timeout) = @_;
 
     $timeout ||= $self->{timeout};
 
-    if ($self->{netobj}->timeout() ne $timeout) {
+    if ($self->{netobj}->timeout ne $timeout) {
         $self->{netobj}->timeout($timeout);
         print "Timeout change to $timeout\n" if $self->{debug};
     }
@@ -497,10 +554,12 @@ sub Expect {
     return unless @keys;
 
     print "Waiting: [", _plain(join(",", @keys)), "]\n" if $self->{debug};
+
     undef $self->{errmsg};
     eval {($retval, $retkey) = ($self->{netobj}->waitfor(map {
 	m|^m/.*/[imsx]*$| ? ('Match' => $_) : ('String' => $_)
     } @keys)) };
+
     $self->{errmsg} = $@ if $@;
 
     if ($retkey) {
@@ -538,7 +597,8 @@ sub Expect {
 }
 
 # Chops the first one or two lines from a procedure to determine
-# if it could be used as a hook, among other things.
+# if it could be used as a hook, and performs assorted magic.
+
 sub _chophook {
     my ($self, $procref, $varref, $paramref) = @_;
     my ($state, $wait);
@@ -566,130 +626,135 @@ sub _chophook {
         $wait =~ s/\x5c\x5c/_!!!_/g;
         $wait =~ s/\\n/\015\012/g;
         $wait =~ s/\\e/\e/g;
+	$wait =~ s/\\c(.)/"$1" & "\x1F"/eg;
         $wait =~ s/\\x([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
         $wait =~ s/_!!!_/\x5c/g;
     }
     else {
-        die "Chophook: Procedure does not start with 'wait'";
+        croak "Chophook: Procedure does not start with 'wait'";
     }
 
     return ($state, $wait);
 }
 
-# Implementation of named procedures.
+
+=head2 AUTOLOAD($self, [@args])
+
+The actual implementation of named procedures. All method calls made to a
+B<OurNet::BBSAgent> object would resolve to the corresponding procedure
+defined it its site description file, which pushes values to the return
+stack through the B<till> directive.
+
+An error is raised if the procedure called is not found.
+
+=cut
+
 sub AUTOLOAD {
     my $self   = shift;
     my $flag   = ${shift()} if ref($_[0]);
     my $params = join(',', @_) if @_;
-    my $sub    = $AUTOLOAD;
+    my $sub    = $AUTOLOAD; $sub =~ s/^.*:://;
+
+    croak "Undefined procedure '$sub' called"
+	unless (exists $self->{proc}{$sub});
 
     local $^W = 0; # no warnings here
 
-    $sub =~ s/^.*:://;
+    my @proc = @{$self->{proc}{$sub}};
+    my @cond = 1; # the condition stack
+    my (@result, %var);
 
-    if (exists $self->{proc}{$sub}) {
-        my @proc = @{$self->{proc}{$sub}};
-        my @cond = 1;
-        my (@result, %var);
+    print "Entering $sub ($params)\n" if $self->{debug};
 
-        print "Entering $sub ($params)\n" if $self->{debug};
+    $self->_chophook(\@proc, \%var, \@_) if $flag;
 
-        $self->_chophook(\@proc, \%var, \@_) if $flag;
-        while (my $op = shift(@proc)) {
-            my $param = shift(@proc);
+    while (my $op = shift(@proc)) {
+	my $param = shift(@proc);
 
-            if ($op eq 'endo') {
-                pop @cond; next;
-            } 
-            elsif ($op eq 'else') {
-                $cond[-1] = !($cond[-1]); next;
-            }
-            else {
-                next unless ($cond[-1]);
-            }
+	# condition tests
+	pop(@cond),		next if $op eq 'endo';
+	$cond[-1] = !$cond[-1],	next if $op eq 'else';
+	next unless ($cond[-1]);
 
-            $param =~ s/\x5c\x5c/_!!!_/g;
-            $param =~ s/\\n/\015\012/g;
-            $param =~ s/\\e/\e/g;
-            $param =~ s/\\x([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
-            $param =~ s/_!!!_/\x5c/g;
+	$param =~ s/\x5c\x5c/_!!!_/g;
+	$param =~ s/\\n/\015\012/g;
+	$param =~ s/\\e/\e/g;
+	$param =~ s/\\c(.)/"$1" & "\x1F"/eg;
+	$param =~ s/\\x([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
+	$param =~ s/_!!!_/\x5c/g;
 
-            $param =~ s{\$\[([\-\d]+)\]}{
-                $self->{lastmatch}[$1]
-            }eg unless $op eq 'call';
+	$param =~ s{\$\[([\-\d]+)\]}{
+	    $self->{lastmatch}[$1]
+	}eg unless $op eq 'call';
 
-            $param =~ s{\$\[([^\]]+)\]}{
-                $var{$1} || ($var{$1} = (exists $self->{var}{$1}
-                    ? $self->{var}{$1} : shift))
-            }eg unless $op eq 'call';
+	$param =~ s{\$\[([^\]]+)\]}{
+	    $var{$1} || ($var{$1} = (exists $self->{var}{$1}
+		? $self->{var}{$1} : shift))
+	}eg unless $op eq 'call';
 
-            print "*** $op ", _plain($param), "\n" if $self->{debug};
+	print "*** $op ", _plain($param), "\n" if $self->{debug};
 
-            if ($op eq 'doif') {
-                push(@cond, $param);
-            }
-            elsif ($op eq 'call') {
-                # for kkcity
-                $param =~ s{\$\[([^\]]+)\]}{
-                    $var{$1} || ($var{$1} = (exists $self->{var}{$1}
-                        ? $self->{var}{$1} : shift))
-                }eg;
+	if ($op eq 'doif') {
+	    push(@cond, $param);
+	}
+	elsif ($op eq 'call') {
+	    # for kkcity
+	    $param =~ s{\$\[([^\]]+)\]}{
+		$var{$1} || ($var{$1} = (exists $self->{var}{$1}
+		    ? $self->{var}{$1} : shift))
+	    }eg;
 
-                my @params = split(',', $param);
-                ($param, $params[0]) = split(/\s/, $params[0], 2);
+	    my @params = split(',', $param);
+	    ($param, $params[0]) = split(/\s/, $params[0], 2);
 
-                s{\$\[(.+?)\]}{
-                    $var{$1} || ($var{$1} = (exists $self->{var}{$1}
-                        ? $self->{var}{$1} : shift))
-                }eg foreach @params;
+	    s{\$\[(.+?)\]}{
+		$var{$1} || ($var{$1} = (exists $self->{var}{$1}
+		    ? $self->{var}{$1} : shift))
+	    }eg foreach @params;
 
-                $self->$param(@params)
-                    unless $self->{state} eq "$param ".join(',',@params);
+	    $self->$param(@params)
+		unless $self->{state} eq "$param ".join(',',@params);
 
-                print "Return from $param (",join(',',@params),")\n"
-                    if $self->{debug};
-            }
-            elsif ($op eq 'goto') {
-                $self->$param() unless $self->{state} eq $param;
-                return wantarray ? @result : $result[0];
-            }
-            elsif ($op eq 'wait') {
-                defined $self->Expect($param) or return;
-            }
-            elsif ($op eq 'till') {
-                my $lastidx = $#result;
-                push @result, $self->Expect($param);
-                return if $lastidx == $#result;
-            }
-            elsif ($op eq 'send') {
-		undef $self->{errmsg};
-                $self->{netobj}->send($param);
-                return if $self->{errmsg};
-            }
-            elsif ($op eq 'exit') {
-                $result[0] = '' unless defined $result[0];
-                return wantarray ? @result : $result[0];
-            }
-            elsif ($op eq 'setv') {
-                my ($var, $val) = split(/\s/, $param, 2);
-                $self->{var}{$var} = $val;
-            }
-            elsif ($op eq 'idle') {
-                sleep $param;
-            }
-            else {
-                die "No such operator: $op";
-            }
-        }
-
-        $self->{state} = "$sub $params";
-
-        print "Set State: $self->{state}\n" if $self->{debug};
-        return wantarray ? @result : $result[0];
+	    print "Return from $param (",join(',',@params),")\n"
+		if $self->{debug};
+	}
+	elsif ($op eq 'goto') {
+	    $self->$param() unless $self->{state} eq $param;
+	    return wantarray ? @result : $result[0];
+	}
+	elsif ($op eq 'wait') {
+	    defined $self->Expect($param) or return;
+	}
+	elsif ($op eq 'till') {
+	    my $lastidx = $#result;
+	    push @result, $self->Expect($param);
+	    return if $lastidx == $#result;
+	}
+	elsif ($op eq 'send') {
+	    undef $self->{errmsg};
+	    $self->{netobj}->send($param);
+	    return if $self->{errmsg};
+	}
+	elsif ($op eq 'exit') {
+	    $result[0] = '' unless defined $result[0];
+	    return wantarray ? @result : $result[0];
+	}
+	elsif ($op eq 'setv') {
+	    my ($var, $val) = split(/\s/, $param, 2);
+	    $self->{var}{$var} = $val;
+	}
+	elsif ($op eq 'idle') {
+	    sleep $param;
+	}
+	else {
+	    die "No such operator: $op";
+	}
     }
-    else {
-        die "Undefined procedure '$sub' called";
-    }
+
+    $self->{state} = "$sub $params";
+
+    print "Set State: $self->{state}\n" if $self->{debug};
+    return wantarray ? @result : $result[0];
 }
 
 sub DESTROY {}
@@ -698,13 +763,17 @@ sub DESTROY {}
 
 __END__
 
+=head1 SEE ALSO
+
+L<Net::Telnet>, L<OurNet::BBS>
+
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.org>
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001, 2003 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
