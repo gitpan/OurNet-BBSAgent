@@ -1,7 +1,7 @@
 package OurNet::BBSAgent;
 require 5.005;
 
-$OurNet::BBSAgent::VERSION = '1.53';
+$OurNet::BBSAgent::VERSION = '1.54';
 
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -262,7 +262,8 @@ sub loadfile {
     <_FILE>; <_FILE>; # skip headers
 
     while (my $line = <_FILE>) {
-        next if $line =~ /^#|^\s*$/;
+        next if $line =~ /^#|^[\s\t]*$/;
+        $line =~ s/[\s\t]+\#[\s\t]+.+$//;
 
         if ($line =~ /^=(\w+)$/) {
             $self->{state}    = $1;
@@ -271,7 +272,7 @@ sub loadfile {
         elsif (
 	    $line =~ /^\s*(
 		idle|load|doif|endo|goto|call|wait|send|else|till|setv|exit
-	    )\s*(.*)$/x
+	    )[\s\t]*(.*)$/x
 	) {
             if (!$self->{state}) {
                 # directives must belong to procedures...

@@ -1,114 +1,30 @@
 CVIC BBS
 cvic.org:23
 
-=login
-wait 註冊
-send $[username]\n
-doif $[password]
-    wait 密碼
-    send $[password]\n\n
-endo
-send \n\n\n
-goto main
+load maple2.board
 
+setv cursor ●
+setv morehead m/\e\[0?m\e\[([\d;]+)m\x20\x20瀏覽\x20P./
+setv moretail 結束 # m/\[q\]\e\[30m結束\x20\x20\x20\e\[0?m/
 =main
-send eeeeeeee
+send \e[D\e[D\e[D\e[D\e[D\e[D
 wait 主功能表
-till Call機
+till [Call機]
 
-=balloon
-wait \e[1;33;46m★
-till \e[37;45m\x20
-till \x20\e[0m
-exit
-
-=balloon_reply
-send \x12
-wait 回去：
-send $[message]\n
-wait [Y]
-send \n
-wait \e[m
-exit
-
-=balloon_send
-call talk_users
-send /
-wait 姓名：
-send $[receiver]\n
-wait $[receiver]
-send s
-wait Call-In：
-send $[message]\n
-wait [Y]
-send \n
-wait \e[m
-exit
-
-=configure
+=board
 call main
-send c\n
-wait 其他功能
-till Call機
-
-=getmood
-call configure
-send m\n
-wait 目前心情\x20\e[1;31m\x20
-till \x20\e[
-wait 第幾項：
-send \n
-exit
-
-=setmood
-call configure
-send m\n
-wait 第幾項：
-send 0\n$[mood]\n
-exit
-
-=mail
-call main
-send m\n
-wait 電子郵件
-till Call機
-
-=talk
-call main
-send t\n
-wait 聊天說話
-till Call機
-
-=talk_users
-call talk
-send u\n
-wait 休閒聊天
-till (TAB/f)
-
-=talk_users_refresh
-send \x15
-wait 休閒聊天
-till (TAB/f)
-exit
-
-=mail_send
-call mail
-send s\n
-wait 代號：
-send $[receiver]\n
-wait 主題：
-send $[subject]\n
+send 1\n
+send /friends\n
+send E # Edit favorite
 wait 編輯文章
-send $[content]\x18
+send \x19$[board]\n\x18
 wait 檔案處理
 send s\n\n
-wait 底稿
-doif $[savelocal]
-    send \n
-else
-    send n\n
-endo
-send \n
+send /
+wait 名稱：
+send $[board]\n\n\x201\n\nq\n
+wait 板主：
+till 文章選讀
 
 =group
 call main
@@ -129,78 +45,6 @@ exit
 send n
 wait \e[30;47m
 till \x20
-exit
-
-=board
-call main
-send 1\n
-send /friends\n
-send E # Edit favorite
-wait 編輯文章
-send \x19$[board]\n\x18
-wait 檔案處理
-send s\n\n
-send /
-wait 名稱：
-send $[board]\n\n\x201\n\nq\n
-wait 板主：
-till 文章選讀
-
-=board_list_author
-call board $[board]
-send a$[author]\n
-wait ●
-till 文章選讀
-exit
-
-=board_article_edit
-send E$[content]\x18
-wait 檔案處理
-send s\n
-exit
-
-=board_list_last
-call board $[board]
-send 1\np\nq\n
-wait ●
-till /
-exit
-
-=board_article_select
-call board 1,$[board]
-send $[article]\n\nq\n
-wait ●
-till 文章選讀
-exit
-
-=board_article_desc
-send q\n
-wait ●
-till 文章選讀
-exit
-
-=board_article_fetch_first
-call board $[board]
-send $[article]\n\n
-#send \n
-till m/\e\[([\d;]+)m\x20\x20瀏覽\x20P./
-wait (
-till \x20
-exit
-
-=board_article_fetch_next
-send \x20
-wait \e[30m結束
-wait \e[0m
-till m/\e\[([\d;]+)m\x20\x20瀏覽\x20P./
-wait (
-till \x20
-exit
-
-=logoff
-send eeeeeeeeeeee\nn\ny\ny\n\n\n
-
-=board_article_fetch_last
 exit
 
 =trimester_move
@@ -232,36 +76,3 @@ send 3\n
 wait 看板列表
 send /Trimesters\n\n
 wait 看板列表
-
-=chat_enter
-call talk
-send c\no\n\n
-wait \x00\x00\x00\x00\x00
-
-=chat_room
-send /j $[room]\n
-wait [$[room]]
-exit
-
-=chat_say
-send $[message]\n
-wait $[message]
-exit
-
-=chat_listen
-wait ;1H\x00\x00\x00\x00\x00
-till :\x20
-  or *\x20
-till \e[
-exit
-
-=chat_leave
-send /bye\n
-wait [C]
-send c\n
-goto main
-
-=chat_msg
-send /m $[caller] $[message]\n
-wait $[message]
-exit

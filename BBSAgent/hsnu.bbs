@@ -53,7 +53,7 @@ send \x10$[title]\n0\n$[body]
 # clean header
 send \x13\x19\x19\x19\x19
 # clean tailer (x-origin)
-send \x14\x19\x19\x19\x19
+# send \x14\x19\x19\x19\x19 # deleted by fascist autrijus
 # save
 send \x17\n\x20
 exit

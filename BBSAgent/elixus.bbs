@@ -10,3 +10,23 @@ wait 名稱
 send $[board]\n\x20\x20
 wait 板主：
 wait 文  章  標  題
+
+=article_post_raw
+call board $[board]
+send \x10
+wait 標題：
+send $[title]\n
+wait 簽名檔
+send 0\n
+wait 編輯文章
+send $[body]
+# clean header
+send \x13\x19\x19\x19\x19
+send \x18
+wait [S]存檔
+send s\n
+wait 請按任意鍵繼續
+send \x20
+exit 
+
+

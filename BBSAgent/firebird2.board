@@ -63,7 +63,7 @@ call board $[board]
 send \x10$[title]\n\n
 send $[body]
 # clean tailer (x-origin)
-send \x14\x19\x19\x19
+# send \x14\x19\x19\x19 # delete by fascist aurijus
 send \x18s\n
 send \x20
 #doif $[author]

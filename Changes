@@ -1,4 +1,46 @@
 ____________________________________________________________________________
+[  1111] By: autrijus@autribsd                     on 2001/06/13 06:59:07
+	Log: * oops. should clean header after all.
+       Path: BBSAgent
+	   ! elixus.bbs
+____________________________________________________________________________
+[  1095] By: autrijus@autribsd                     on 2001/06/13 00:53:09
+	Log: * \t is now legal after a directive. this fixes ofo.bbs.
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[  1093] By: autrijus@autribsd                     on 2001/06/13 00:36:36
+	Log: * pressing 'q' won't exit if user was in mailbox
+	     * added extra checking for elixus posting
+       Path: BBSAgent
+	   ! elixus.bbs maple3.board
+____________________________________________________________________________
+[  1087] By: autrijus@autribsd                     on 2001/06/12 12:39:49
+	Log: * patch from rabit: fix incorrect title bug.
+       Path: BBSAgent
+	   ! cynix.bbs
+____________________________________________________________________________
+[  1012] By: autrijus@autribsd                     on 2001/06/09 18:46:32
+	Log: * massive bbs template changes to force x-orig in place
+       Path: BBSAgent
+	   ! cvic.bbs firebird2.board hsnu.bbs maple2.board maple3.board
+____________________________________________________________________________
+[  1011] By: autrijus@autribsd                     on 2001/06/09 18:35:07
+	Log: * allows comments in a single line # like this
+       Path: .
+	   ! BBSAgent.pm
+____________________________________________________________________________
+[   999] By: autrijus@autribsd                     on 2001/06/09 12:05:44
+	Log: * fixes maple3 fetch_last problem when the last article is
+	     deleted
+       Path: BBSAgent
+	   ! maple3.board
+____________________________________________________________________________
+[   980] By: autrijus@autribsd                     on 2001/06/08 14:19:20
+	Log: * this be OurNet-BBSAgent 1.53 release
+       Path: .
+	   ! Changes
+____________________________________________________________________________
 [   963] By: autrijus@autribsd                     on 2001/06/07 23:38:39
 	Log: * style clean-up for nntp and bbsagent
        Path: .

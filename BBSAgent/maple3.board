@@ -11,7 +11,7 @@ endo
 send \n\n\n\n
 
 =main
-send qqqqqqqq
+send qqqqqqee
 wait 主功能表
 till 呼叫器
 
@@ -26,7 +26,7 @@ wait 文  章  標  題
 
 =board_list_last
 call board $[board]
-send 1\np\nq>
+send 1\n\x24h\x20 # 1, $, h, space
 #wait m/\x0d>\x20+1\x20/
 wait 板主：
 wait \x0d>
